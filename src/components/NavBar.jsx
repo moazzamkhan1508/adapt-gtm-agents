@@ -15,10 +15,7 @@ export default function NavBar({ contactCount, dealCount }) {
     <nav style={{ background: '#FFFFFF', borderBottom: '1px solid #DDE2E8', height: '50px' }}
       className="sticky top-0 z-50 flex items-center justify-between px-4 md:px-6 shadow-sm">
       <div className="flex items-center gap-3">
-        <div style={{ background: '#159A68', borderRadius: '6px', width: '28px', height: '28px' }}
-          className="flex items-center justify-center flex-shrink-0">
-          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '14px', color: '#FFFFFF' }}>A</span>
-        </div>
+        <img src="https://media.base44.com/images/public/69fadf323e84ff19a5036c4f/7fb1b946b_67a3701d4d1a70bae8943224_navbar-logo-icon.png" alt="Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
         <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '15px', color: '#1A2330', letterSpacing: '-0.02em' }}>
           Adapt
         </span>
