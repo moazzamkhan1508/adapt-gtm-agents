@@ -87,7 +87,7 @@ export default function Agent01({ selectedContact }) {
   }
 
   if (state === 'result' && brief) {
-    return <BriefView brief={brief} contact={lastContact} generatedAt={generatedAt} />;
+    return <BriefView brief={brief} contact={lastContact} generatedAt={generatedAt} onRunBrief={runBrief} />;
   }
 
   return null;
