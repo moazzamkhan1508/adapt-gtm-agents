@@ -206,7 +206,7 @@ Search the web and return a JSON object with exactly these 6 keys:
     const noteIds = (notesAssoc.results || []).map(n => n.id);
 
     const notes = [];
-    for (const noteId of noteIds.slice(0, 3)) {
+    for (const noteId of noteIds.slice(0, 5)) {
       const nRes = await fetch(
         `https://api.hubapi.com/crm/v3/objects/notes/${noteId}?properties=hs_note_body,hs_timestamp`,
         { headers }
@@ -216,10 +216,39 @@ Search the web and return a JSON object with exactly these 6 keys:
         const np = nd.properties || {};
         if (np.hs_note_body) {
           notes.push({
+            type: 'note',
             body: np.hs_note_body,
             date: np.hs_timestamp ? new Date(np.hs_timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null,
+            rawDate: np.hs_timestamp || null,
           });
         }
+      }
+    }
+
+    // ── 4b. FETCH TASKS ────────────────────────────────────────────────────────
+    const tasksAssocRes = await fetch(`https://api.hubapi.com/crm/v3/objects/contacts/${contactId}/associations/tasks`, { headers });
+    const tasksAssoc = await tasksAssocRes.json();
+    const taskIds = (tasksAssoc.results || []).map(t => t.id);
+
+    const tasks = [];
+    for (const taskId of taskIds.slice(0, 5)) {
+      const tRes = await fetch(
+        `https://api.hubapi.com/crm/v3/objects/tasks/${taskId}?properties=hs_task_subject,hs_task_body,hs_task_status,hs_task_type,hs_timestamp,hs_task_completion_date`,
+        { headers }
+      );
+      if (tRes.ok) {
+        const td = await tRes.json();
+        const tp = td.properties || {};
+        tasks.push({
+          type: 'task',
+          subject: tp.hs_task_subject || 'Untitled Task',
+          body: tp.hs_task_body || null,
+          status: tp.hs_task_status || null,
+          taskType: tp.hs_task_type || null,
+          date: tp.hs_timestamp ? new Date(tp.hs_timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null,
+          rawDate: tp.hs_timestamp || null,
+          completedDate: tp.hs_task_completion_date ? new Date(tp.hs_task_completion_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null,
+        });
       }
     }
 
@@ -234,6 +263,7 @@ Search the web and return a JSON object with exactly these 6 keys:
       deals,
       meetings: meetings.slice(0, 3).map(m => ({ title: m.title, startTime: m.startTime, outcome: m.outcome, notes: m.notes?.slice(0, 400) })),
       notes: notes.map(n => ({ body: n.body?.slice(0, 400), date: n.date })),
+      tasks: tasks.map(t => ({ subject: t.subject, status: t.status, date: t.date })),
     });
 
     const prompt = `You are a GTM intelligence agent preparing a pre-meeting brief for a B2B sales rep.
@@ -299,6 +329,7 @@ Search the web thoroughly and return a JSON object with EXACTLY these 6 keys:
       deals,
       meetings,
       notes,
+      tasks,
       companyNews,
       linkedinProfile,
       companyIntel,

@@ -47,13 +47,8 @@ function getInitials(name) {
   return name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
 }
 
-function MeetingOutcomeColor(outcome) {
-  if (!outcome) return 'gray';
-  const o = outcome.toLowerCase();
-  if (o.includes('complet') || o.includes('scheduled')) return 'teal';
-  if (o.includes('cancel') || o.includes('no_show')) return 'red';
-  return 'amber';
-}
+
+import ActivityTimeline from '@/components/ActivityTimeline';
 
 export default function BriefView({ brief, contact, generatedAt }) {
   const {
@@ -61,6 +56,7 @@ export default function BriefView({ brief, contact, generatedAt }) {
     deals = [],
     meetings = [],
     notes = [],
+    tasks = [],
     companyNews = [],
     linkedinProfile = null,
     companyIntel = null,
@@ -190,46 +186,9 @@ export default function BriefView({ brief, contact, generatedAt }) {
         </Card>
       )}
 
-      {/* Meetings */}
-      {meetings.length > 0 && (
-        <Card>
-          <SectionLabel>MEETING HISTORY ({meetings.length})</SectionLabel>
-          <div className="space-y-4">
-            {meetings.slice(0, 4).map((m, i) => (
-              <div key={i} className={i > 0 ? 'pt-4 border-t' : ''} style={{ borderColor: '#DDE2E8' }}>
-                <div className="flex items-start justify-between gap-2 mb-1.5">
-                  <p style={{ fontSize: '13px', fontWeight: 500, color: '#1A2330' }}>{m.title}</p>
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    {m.outcome && <Pill color={MeetingOutcomeColor(m.outcome)}>{m.outcome}</Pill>}
-                  </div>
-                </div>
-                {m.startTime && (
-                  <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: '#8A9BAA', marginBottom: '6px' }}>{m.startTime}</p>
-                )}
-                {m.notes && (
-                  <p style={{ fontSize: '12px', color: '#4A5C6A', lineHeight: 1.5, borderLeft: '2px solid #DDE2E8', paddingLeft: '10px' }}>
-                    {m.notes.slice(0, 300)}{m.notes.length > 300 ? '…' : ''}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {/* Recent notes */}
-      {notes.length > 0 && (
-        <Card>
-          <SectionLabel>RECENT NOTES</SectionLabel>
-          <div className="space-y-3">
-            {notes.map((n, i) => (
-              <div key={i} className={i > 0 ? 'pt-3 border-t' : ''} style={{ borderColor: '#DDE2E8' }}>
-                {n.date && <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: '#8A9BAA', marginBottom: '4px' }}>{n.date}</p>}
-                <p style={{ fontSize: '12px', color: '#4A5C6A', lineHeight: 1.6 }}>{n.body?.slice(0, 400)}{n.body?.length > 400 ? '…' : ''}</p>
-              </div>
-            ))}
-          </div>
-        </Card>
+      {/* Activity Timeline — meetings, notes, tasks */}
+      {(meetings.length > 0 || notes.length > 0 || tasks.length > 0) && (
+        <ActivityTimeline meetings={meetings} notes={notes} tasks={tasks} />
       )}
 
       {/* LinkedIn Profile */}
