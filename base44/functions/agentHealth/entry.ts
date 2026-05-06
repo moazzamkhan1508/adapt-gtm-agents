@@ -1,11 +1,11 @@
 Deno.serve(async (req) => {
-  const hasApiKey = !!Deno.env.get('ANTHROPIC_API_KEY');
-  const hasHubspot = !!Deno.env.get('HUBSPOT_PRIVATE_APP_TOKEN');
+  const hubspotToken = Deno.env.get('HUBSPOT_PRIVATE_APP_TOKEN');
+  const connected = !!hubspotToken;
+
   return Response.json({
-    status: 'ok',
-    hasApiKey,
-    hasHubspot,
-    connected: hasApiKey && hasHubspot,
+    status: connected ? 'ok' : 'error',
+    hasHubspot: connected,
+    connected,
     timestamp: new Date().toISOString(),
   });
 });

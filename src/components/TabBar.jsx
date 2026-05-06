@@ -28,7 +28,7 @@ export default function TabBar({ activeTab, onTabChange, contactCount }) {
       <div className="hidden md:flex items-center gap-3">
         {contactCount > 0 && (
           <span style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: '#4A5E4C' }}>
-            {contactCount} contacts · HubSpot CRM · Claude Sonnet 4
+            {contactCount} contacts · HubSpot CRM
           </span>
         )}
       </div>
