@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
     const contacts = (data.results || [])
       .filter(c => {
         const name = `${c.properties.firstname || ''} ${c.properties.lastname || ''}`.trim();
-        return name && !name.startsWith('TestFirst') && !name.startsWith('ExampleCo');
+        return !!name;
       })
       .map(c => {
         const p = c.properties;
