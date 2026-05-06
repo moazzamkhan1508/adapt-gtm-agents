@@ -67,8 +67,12 @@ export default function Sidebar({ contacts, loading, onSelectContact, selectedCo
     );
   }, [contacts, search]);
 
-  const opportunities = filtered.filter(c => c.lifecycle === 'opportunity');
-  const others = filtered.filter(c => c.lifecycle !== 'opportunity');
+  const opportunities = filtered
+    .filter(c => c.lifecycle === 'opportunity')
+    .sort((a, b) => new Date(b.createdDate || 0) - new Date(a.createdDate || 0));
+  const others = filtered
+    .filter(c => c.lifecycle !== 'opportunity')
+    .sort((a, b) => new Date(b.createdDate || 0) - new Date(a.createdDate || 0));
 
   return (
     <div style={{ width: '252px', minWidth: '252px', background: '#FFFFFF', borderRight: '1px solid #DDE2E8', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', flexShrink: 0 }}>

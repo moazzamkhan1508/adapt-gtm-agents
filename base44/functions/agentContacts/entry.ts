@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
           'lifecyclestage', 'hs_object_source', 'hs_object_source_label',
           'hs_object_source_id', 'createdate', 'linkedin_url', 'linkedinbio'
         ],
-        sorts: [{ propertyName: 'hs_lastmodifieddate', direction: 'DESCENDING' }],
+        sorts: [{ propertyName: 'createdate', direction: 'DESCENDING' }],
         limit: 50,
       }),
     });
