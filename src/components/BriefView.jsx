@@ -55,7 +55,7 @@ function MeetingOutcomeColor(outcome) {
   return 'amber';
 }
 
-export default function BriefView({ brief, contact, generatedAt, onRunBrief }) {
+export default function BriefView({ brief, contact, generatedAt }) {
   const {
     deal,
     deals = [],
@@ -106,15 +106,7 @@ export default function BriefView({ brief, contact, generatedAt, onRunBrief }) {
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              {onRunBrief ? (
-                <button
-                  onClick={() => onRunBrief({ name: displayName, company: contactInfo.company, email: contactInfo.email })}
-                  style={{ fontSize: '15px', fontWeight: 500, color: '#2563EB', marginBottom: '2px', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
-                  {displayName}
-                </button>
-              ) : (
-                <p style={{ fontSize: '15px', fontWeight: 500, color: '#1A2330', marginBottom: '2px' }}>{displayName}</p>
-              )}
+              <p style={{ fontSize: '15px', fontWeight: 500, color: '#1A2330', marginBottom: '2px' }}>{displayName}</p>
               <p style={{ fontSize: '12px', color: '#4A5C6A', marginBottom: '6px' }}>
                 {[contactInfo.title, contactInfo.company].filter(Boolean).join(' · ')}
               </p>
@@ -156,15 +148,7 @@ export default function BriefView({ brief, contact, generatedAt, onRunBrief }) {
                 <Pill color="teal">● {deal.stage}</Pill>
                 {deal.probability && <Pill color="gray">{deal.probability}</Pill>}
               </div>
-              {onRunBrief ? (
-                <button
-                  onClick={() => onRunBrief({ name: displayName, company: contactInfo.company, email: contactInfo.email })}
-                  style={{ fontSize: '14px', fontWeight: 500, color: '#2563EB', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
-                  {deal.name}
-                </button>
-              ) : (
-                <p style={{ fontSize: '14px', fontWeight: 500, color: '#1A2330' }}>{deal.name}</p>
-              )}
+              <p style={{ fontSize: '14px', fontWeight: 500, color: '#1A2330' }}>{deal.name}</p>
               <div className="flex items-center gap-3 flex-wrap">
                 {deal.amount && <span style={{ fontSize: '13px', color: '#159A68', fontWeight: 600 }}>{deal.amount}</span>}
                 {deal.closeDate && <span style={{ fontSize: '11px', color: '#8A9BAA', fontFamily: 'IBM Plex Mono, monospace' }}>Close {deal.closeDate}</span>}
@@ -189,15 +173,7 @@ export default function BriefView({ brief, contact, generatedAt, onRunBrief }) {
             {deals.map((d, i) => (
               <div key={i} className={i > 0 ? 'pt-3 border-t' : ''} style={{ borderColor: '#DDE2E8' }}>
                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                  {onRunBrief ? (
-                    <button
-                      onClick={() => onRunBrief({ name: displayName, company: contactInfo.company, email: contactInfo.email })}
-                      style={{ fontSize: '13px', fontWeight: 500, color: '#2563EB', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
-                      {d.name}
-                    </button>
-                  ) : (
-                    <p style={{ fontSize: '13px', fontWeight: 500, color: '#1A2330' }}>{d.name}</p>
-                  )}
+                  <p style={{ fontSize: '13px', fontWeight: 500, color: '#1A2330' }}>{d.name}</p>
                   <div className="flex items-center gap-1.5">
                     {d.amount && <span style={{ fontSize: '12px', color: '#159A68', fontWeight: 600 }}>{d.amount}</span>}
                     <Pill color="gray">{d.stage}</Pill>

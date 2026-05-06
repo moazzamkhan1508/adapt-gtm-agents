@@ -6,19 +6,12 @@ import Sidebar from '@/components/Sidebar';
 import Agent01 from './Agent01';
 import Agent02 from './Agent02';
 import Agent03 from './Agent03';
-import MeetingsPanel from '@/components/MeetingsPanel';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState(1);
   const [contacts, setContacts] = useState([]);
   const [loadingContacts, setLoadingContacts] = useState(true);
   const [selectedContact, setSelectedContact] = useState(null);
-  const [followupMeeting, setFollowupMeeting] = useState(null);
-
-  const handleUseForFollowup = (meeting) => {
-    setFollowupMeeting(meeting);
-    setActiveTab(2);
-  };
 
   useEffect(() => {
     base44.functions.invoke('agentContacts', { _t: Date.now() })
@@ -50,14 +43,9 @@ export default function Home() {
         {/* Main content */}
         <div style={{ flex: 1, overflowY: 'auto', background: '#F5F7F9' }}>
           {activeTab === 1 && <Agent01 selectedContact={selectedContact} />}
-          {activeTab === 2 && <Agent02 prefillMeeting={followupMeeting} onClear={() => setFollowupMeeting(null)} />}
+          {activeTab === 2 && <Agent02 />}
           {activeTab === 3 && <Agent03 />}
         </div>
-
-        {/* Meetings panel — always visible on tab 1 */}
-        {activeTab === 1 && (
-          <MeetingsPanel onUseForFollowup={handleUseForFollowup} />
-        )}
       </div>
     </div>
   );
