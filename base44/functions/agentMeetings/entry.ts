@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
     if (!res.ok || !data.results?.length) return Response.json({ meetings: SAMPLE_MEETINGS });
 
     const nowDate = new Date();
-    const meetings = data.results
+    const hubspotMeetings = data.results
       .filter(m => m.properties.hs_meeting_start_time)
       .map(m => {
         const p = m.properties;
@@ -142,10 +142,12 @@ Deno.serve(async (req) => {
         };
       });
 
-    const upcoming = meetings.filter(m => m.status === 'Upcoming').sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
-    const past = meetings.filter(m => m.status === 'Completed').sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+    // Always include sample upcoming meetings + real HubSpot past meetings
+    const allMeetings = [...SAMPLE_UPCOMING, ...hubspotMeetings.filter(m => m.status === 'Completed')];
+    const upcoming = allMeetings.filter(m => m.status === 'Upcoming').sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+    const past = allMeetings.filter(m => m.status === 'Completed').sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
 
-    return Response.json({ meetings: [...upcoming, ...past].length ? [...upcoming, ...past] : SAMPLE_MEETINGS });
+    return Response.json({ meetings: [...upcoming, ...past] });
   } catch (error) {
     return Response.json({ meetings: SAMPLE_MEETINGS });
   }
