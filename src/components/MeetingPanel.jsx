@@ -38,16 +38,31 @@ function MeetingCard({ meeting, onUseForFollowup, onSelectContact, isExpanded, o
           <p style={{ fontSize: '10px', color: '#8A9BAA', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
             <Clock size={10} /> {time} · 1h
           </p>
-          <p style={{ fontSize: '10px', color: '#4A5C6A' }}>
+          <p style={{ fontSize: '10px', color: '#4A5C6A', marginTop: '3px' }}>
             ·{' '}
             <button
               onClick={e => { e.stopPropagation(); onSelectContact(meeting.contact); }}
-              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#4A5C6A', fontSize: '10px', textDecoration: 'underline', textDecorationColor: '#DDE2E8' }}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '10px' }}
             >
-              <span style={{ color: '#159A68' }}>{meeting.contact.name}</span>
-              {meeting.contact.company && <span style={{ color: '#8A9BAA' }}> ({meeting.contact.company})</span>}
+              <span style={{ color: '#159A68', textDecoration: 'underline' }}>{meeting.contact.name}</span>
             </button>
+            {meeting.contact.company && (
+              <>
+                <span style={{ color: '#8A9BAA' }}> · </span>
+                <button
+                  onClick={e => { e.stopPropagation(); onSelectContact(meeting.contact); }}
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '10px' }}
+                >
+                  <span style={{ color: '#2563EB', textDecoration: 'underline' }}>{meeting.contact.company}</span>
+                </button>
+              </>
+            )}
           </p>
+          {meeting.deal && (
+            <p style={{ fontSize: '10px', color: '#8A9BAA', marginTop: '2px', fontFamily: 'IBM Plex Mono, monospace' }}>
+              {meeting.deal.stage} · {meeting.deal.amount}
+            </p>
+          )}
           <p style={{ fontSize: '10px', color: '#8A9BAA', marginTop: '2px' }}>@ HubSpot</p>
         </div>
       </div>
@@ -72,6 +87,17 @@ function MeetingCard({ meeting, onUseForFollowup, onSelectContact, isExpanded, o
               )}
             </div>
           </div>
+
+          {/* Deal info */}
+          {meeting.deal && (
+            <div style={{ background: '#FEF6E4', border: '1px solid #F0D090', borderRadius: '8px', padding: '8px 10px', marginBottom: '12px' }}>
+              <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '8px', color: '#C47B10', fontWeight: 700, letterSpacing: '0.08em', marginBottom: '4px' }}>DEAL</p>
+              <p style={{ fontSize: '11px', fontWeight: 600, color: '#1A2330', marginBottom: '2px' }}>{meeting.deal.name}</p>
+              <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: '#8A9BAA' }}>
+                {meeting.deal.stage} · {meeting.deal.amount} · Close {meeting.deal.closeDate}
+              </p>
+            </div>
+          )}
 
           {/* Date chips */}
           <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
