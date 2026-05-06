@@ -1,16 +1,53 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
-import Anthropic from 'npm:@anthropic-ai/sdk@0.27.0';
+
+async function runAI(base44, prompt) {
+  const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+    prompt,
+    add_context_from_internet: true,
+    response_json_schema: {
+      type: 'object',
+      properties: {
+        linkedinProfile: {
+          type: 'object',
+          properties: {
+            synopsis: { type: 'string' },
+            currentRole: { type: 'string' },
+            previousCompanies: { type: 'array', items: { type: 'object', properties: { company: { type: 'string' }, title: { type: 'string' }, tenure: { type: 'string' } } } },
+            recentActivity: { type: 'string' },
+            totalExperience: { type: 'string' },
+          },
+        },
+        companyIntel: {
+          type: 'object',
+          properties: {
+            founded: { type: 'string' },
+            size: { type: 'string' },
+            revenue: { type: 'string' },
+            industry: { type: 'string' },
+            description: { type: 'string' },
+            socialChannels: { type: 'array', items: { type: 'object', properties: { platform: { type: 'string' }, handle: { type: 'string' }, focus: { type: 'string' } } } },
+            latestNews: { type: 'array', items: { type: 'object', properties: { headline: { type: 'string' }, summary: { type: 'string' }, age: { type: 'string' }, hot: { type: 'boolean' }, relevance: { type: 'string' } } } },
+          },
+        },
+        companyNews: { type: 'array', items: { type: 'object', properties: { headline: { type: 'string' }, summary: { type: 'string' }, age: { type: 'string' }, hot: { type: 'boolean' }, relevance: { type: 'string' } } } },
+        talkingPoints: { type: 'array', items: { type: 'string' } },
+        riskFlags: { type: 'array', items: { type: 'string' } },
+        suggestedOpener: { type: 'string' },
+      },
+    },
+    model: 'gemini_3_1_pro',
+  });
+  return result;
+}
 
 Deno.serve(async (req) => {
   try {
+    const base44 = createClientFromRequest(req);
     const { query } = await req.json();
     if (!query) return Response.json({ error: 'query is required' }, { status: 400 });
 
     const hubspotToken = Deno.env.get('HUBSPOT_PRIVATE_APP_TOKEN');
     if (!hubspotToken) return Response.json({ error: 'HUBSPOT_PRIVATE_APP_TOKEN not set' }, { status: 500 });
-
-    const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
-    const anthropic = anthropicKey ? new Anthropic({ apiKey: anthropicKey }) : null;
 
     const headers = { Authorization: `Bearer ${hubspotToken}`, 'Content-Type': 'application/json' };
 
@@ -39,16 +76,39 @@ Deno.serve(async (req) => {
     const searchData = await searchRes.json();
     const contact = searchData.results?.[0];
 
+    // ── NO HUBSPOT RECORD — enrich via AI web search ───────────────────────────
     if (!contact) {
+      const atMatch = query.match(/^(.+?)\s+at\s+([^(]+)/i);
+      const parsedName = atMatch ? atMatch[1].trim() : query.split('(')[0].trim();
+      const parsedCompany = atMatch ? atMatch[2].trim() : null;
+
+      const prompt = `You are a GTM intelligence agent preparing a pre-meeting brief for a B2B sales rep.
+Contact: ${parsedName}${parsedCompany ? `, at ${parsedCompany}` : ''}
+Note: This contact was NOT found in HubSpot CRM.
+
+Search the web and return a JSON object with exactly these 6 keys:
+
+1. "linkedinProfile": { "synopsis": "2-3 sentence career summary", "currentRole": "title at company", "previousCompanies": [{"company":"","title":"","tenure":""}], "recentActivity": "2-3 sentences on their LinkedIn post themes", "totalExperience": "X years" }
+2. "companyIntel": { "founded": "year", "size": "employee range", "revenue": "revenue range", "industry": "sector", "description": "2 sentence overview", "socialChannels": [{"platform":"","handle":"","focus":""}], "latestNews": [{"headline":"","summary":"","age":"","hot":false,"relevance":""}] }
+3. "companyNews": same array as companyIntel.latestNews
+4. "talkingPoints": array of 4 sharp specific talking points
+5. "riskFlags": array of up to 4 risk flags (include "No HubSpot record found — verify contact details" as first)
+6. "suggestedOpener": one natural personalised opening line based on their LinkedIn or company news`;
+
+      let linkedinProfile = null, companyIntel = null, companyNews = [], talkingPoints = [], riskFlags = [], suggestedOpener = '';
+
+      const parsed = await runAI(base44, prompt);
+      linkedinProfile = parsed.linkedinProfile || null;
+      companyIntel = parsed.companyIntel || null;
+      companyNews = parsed.companyNews || parsed.companyIntel?.latestNews || [];
+      talkingPoints = parsed.talkingPoints?.length ? parsed.talkingPoints : ['Introduce your solution and value proposition', 'Ask about current tools and pain points', 'Understand their buying process', 'Explore decision-making process and timeline'];
+      riskFlags = parsed.riskFlags?.length ? parsed.riskFlags : ['No HubSpot record found — verify contact details'];
+      suggestedOpener = parsed.suggestedOpener || `Hi, thanks for taking the time today. I'd love to learn more about your current situation and see if we might be a good fit.`;
+
       return Response.json({
-        contact: { name: query, hubspotFound: false, hubspotId: null, title: null, company: null, email: null, lifecycle: null },
-        deals: [],
-        meetings: [],
-        notes: [],
-        companyNews: [],
-        talkingPoints: ['Introduce your solution and value proposition', 'Ask about current tools and pain points', 'Understand their buying process'],
-        riskFlags: ['No HubSpot record found — verify contact details'],
-        suggestedOpener: `Hi, thanks for taking the time today. I'd love to learn more about your current situation and see if we might be a good fit.`,
+        contact: { name: parsedName, company: parsedCompany, hubspotFound: false, hubspotId: null, title: null, email: null, lifecycle: null },
+        deals: [], meetings: [], notes: [],
+        companyNews, linkedinProfile, companyIntel, talkingPoints, riskFlags, suggestedOpener,
       });
     }
 
@@ -57,7 +117,6 @@ Deno.serve(async (req) => {
     const fullName = `${props.firstname || ''} ${props.lastname || ''}`.trim();
     const company = props.company || null;
 
-    // Detect Apollo import
     const sourceLabel = (props.hs_object_source_label || '').toLowerCase();
     const sourceId = (props.hs_object_source_id || '').toLowerCase();
     const fromApollo = sourceLabel.includes('apollo') || sourceId.includes('apollo');
@@ -113,8 +172,6 @@ Deno.serve(async (req) => {
         });
       }
     }
-
-    // Sort meetings — most recent first
     meetings.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
 
     // ── 4. FETCH NOTES ─────────────────────────────────────────────────────────
@@ -140,79 +197,44 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ── 5. CLAUDE AI — LinkedIn Profile, Company Intel, Talking Points, Risk Flags ──
+    // ── 5. AI — LinkedIn, Company Intel, Talking Points, Risk Flags ────────────
     const lastActivity = props.hs_last_sales_activity_date
       ? new Date(props.hs_last_sales_activity_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
       : null;
     const lifecycle = props.lifecyclestage || null;
 
-    let companyNews = [];
-    let talkingPoints = [];
-    let riskFlags = [];
-    let suggestedOpener = '';
-    let linkedinProfile = null;
-    let companyIntel = null;
+    const contextBlob = JSON.stringify({
+      contact: { name: fullName, title: props.jobtitle, company, email: props.email, lifecycle, lastActivity, fromApollo },
+      deals,
+      meetings: meetings.slice(0, 3).map(m => ({ title: m.title, startTime: m.startTime, outcome: m.outcome, notes: m.notes?.slice(0, 400) })),
+      notes: notes.map(n => ({ body: n.body?.slice(0, 400), date: n.date })),
+    });
 
-    if (anthropic) {
-      const contextBlob = JSON.stringify({
-        contact: { name: fullName, title: props.jobtitle, company, email: props.email, lifecycle, lastActivity, fromApollo },
-        deals,
-        meetings: meetings.slice(0, 3).map(m => ({ title: m.title, startTime: m.startTime, outcome: m.outcome, notes: m.notes?.slice(0, 400) })),
-        notes: notes.map(n => ({ body: n.body?.slice(0, 400), date: n.date })),
-      });
-
-      const aiRes = await anthropic.messages.create({
-        model: 'claude-opus-4-5',
-        max_tokens: 2400,
-        messages: [{
-          role: 'user',
-          content: `You are a GTM intelligence agent preparing a pre-meeting brief for a B2B sales rep.
+    const prompt = `You are a GTM intelligence agent preparing a pre-meeting brief for a B2B sales rep.
 
 CRM context:
 ${contextBlob}
 
-Search the web thoroughly and generate a JSON response with EXACTLY these 6 keys:
+Search the web thoroughly and return a JSON object with EXACTLY these 6 keys:
 
-1. "linkedinProfile": object with:
-   - synopsis: 2-3 sentence career summary for ${fullName} based on their LinkedIn profile
-   - currentRole: their current title and company
-   - previousCompanies: array of up to 4 objects { company, title, tenure } — last few roles with estimated tenures
-   - recentActivity: 2-3 sentences on their recent LinkedIn posts, articles, or engagement themes (what topics they post about)
-   - totalExperience: estimated years in the field
-
-2. "companyIntel": object with:
-   - founded: year the company was founded
-   - size: employee count range (e.g. "50-200 employees")
-   - revenue: estimated annual revenue range
-   - industry: industry/sector
-   - description: 2 sentence company overview from their website
-   - socialChannels: array of objects { platform, handle, focus } — their active social media presence
-   - latestNews: array of up to 3 objects { headline, summary, age, hot, relevance } — REAL recent news about "${company || 'the company'}" (funding, launches, leadership). "hot" boolean = news < 30 days old.
-
-3. "companyNews": array of up to 3 objects { headline, summary, age, hot, relevance } — same as latestNews above (duplicate for backward compat)
-
-4. "talkingPoints": array of 4 sharp, specific talking points based on CRM context, LinkedIn activity, and company news
-
+1. "linkedinProfile": { "synopsis": "2-3 sentence career summary for ${fullName}", "currentRole": "title at company", "previousCompanies": [{"company":"","title":"","tenure":""}], "recentActivity": "2-3 sentences on their LinkedIn post themes", "totalExperience": "X years" }
+2. "companyIntel": { "founded": "year", "size": "employee range", "revenue": "revenue range", "industry": "sector", "description": "2 sentence overview from their website", "socialChannels": [{"platform":"","handle":"","focus":""}], "latestNews": [{"headline":"","summary":"","age":"","hot":false,"relevance":""}] }
+3. "companyNews": same array as companyIntel.latestNews (for backward compat)
+4. "talkingPoints": array of 4 sharp specific talking points based on CRM context, LinkedIn activity, and company news
 5. "riskFlags": array of up to 4 specific risk flags (deal staleness, lifecycle stage, competitor mentions, etc.)
+6. "suggestedOpener": one natural personalised opening line referencing their LinkedIn activity or company news`;
 
-6. "suggestedOpener": one natural, personalised opening line referencing something specific from their LinkedIn activity or company news
+    let linkedinProfile = null, companyIntel = null, companyNews = [], talkingPoints = [], riskFlags = [], suggestedOpener = '';
 
-Return ONLY valid JSON with exactly those 6 keys. No markdown, no preamble.`,
-        }],
-      });
+    const parsed = await runAI(base44, prompt);
+    linkedinProfile = parsed.linkedinProfile || null;
+    companyIntel = parsed.companyIntel || null;
+    companyNews = parsed.companyNews || parsed.companyIntel?.latestNews || [];
+    talkingPoints = parsed.talkingPoints || [];
+    riskFlags = parsed.riskFlags || [];
+    suggestedOpener = parsed.suggestedOpener || '';
 
-      const aiText = aiRes.content[0]?.text || '{}';
-      const cleaned = aiText.replace(/```json|```/g, '').trim();
-      const parsed = JSON.parse(cleaned);
-      linkedinProfile = parsed.linkedinProfile || null;
-      companyIntel = parsed.companyIntel || null;
-      companyNews = parsed.companyNews || parsed.companyIntel?.latestNews || [];
-      talkingPoints = parsed.talkingPoints || [];
-      riskFlags = parsed.riskFlags || [];
-      suggestedOpener = parsed.suggestedOpener || '';
-    }
-
-    // Fallback if Claude not available
+    // Fallbacks
     if (!talkingPoints.length) {
       talkingPoints = [
         company ? `Ask about ${company}'s current priorities and goals` : 'Ask about current business priorities',
@@ -231,7 +253,6 @@ Return ONLY valid JSON with exactly those 6 keys. No markdown, no preamble.`,
       suggestedOpener = `Hi ${props.firstname || fullName}, thanks for making the time today. I wanted to pick up where we left off and make sure I understand your priorities.`;
     }
 
-    // Primary deal for backward-compat display
     const primaryDeal = deals[0] ? { found: true, ...deals[0] } : { found: false, note: 'No open deal in HubSpot. Focus on discovery and qualification.' };
 
     return Response.json({
