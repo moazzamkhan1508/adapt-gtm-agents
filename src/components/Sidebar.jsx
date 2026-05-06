@@ -71,7 +71,7 @@ export default function Sidebar({ contacts, loading, onSelectContact, selectedCo
   const others = filtered.filter(c => c.lifecycle !== 'opportunity');
 
   return (
-    <div style={{ width: '252px', minWidth: '252px', background: '#FFFFFF', borderRight: '1px solid #DDE2E8', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+    <div style={{ width: '252px', minWidth: '252px', background: '#FFFFFF', borderRight: '1px solid #DDE2E8', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', flexShrink: 0 }}>
       {/* Search */}
       <div className="p-3 border-b" style={{ borderColor: '#DDE2E8' }}>
         <div className="relative flex items-center">
@@ -87,7 +87,7 @@ export default function Sidebar({ contacts, loading, onSelectContact, selectedCo
       </div>
 
       {/* List */}
-      <div className="flex-1 overflow-y-auto">
+      <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
         {loading ? (
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <div className="w-2 h-2 rounded-full pulse-dot" style={{ background: '#159A68' }} />
