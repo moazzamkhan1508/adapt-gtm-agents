@@ -14,7 +14,7 @@ export default function Home() {
   const [selectedContact, setSelectedContact] = useState(null);
 
   useEffect(() => {
-    base44.functions.invoke('agentContacts', { _t: Date.now() })
+    base44.functions.invoke('agentContacts', {})
     .then(res => {
       const list = res.data?.contacts || [];
       setContacts(list);
