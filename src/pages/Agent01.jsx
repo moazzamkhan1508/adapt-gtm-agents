@@ -33,8 +33,11 @@ export default function Agent01({ selectedContact }) {
     }
 
     try {
-      const query = `${contact.name}${contact.company ? ` at ${contact.company}` : ''}${contact.email ? ` (${contact.email})` : ''}`;
-      const res = await base44.functions.invoke('agentBrief', { query });
+      const res = await base44.functions.invoke('agentBrief', {
+        query: contact.name,
+        email: contact.email || null,
+        hubspotId: contact.id || null,
+      });
       setGeneratedAt(new Date().toLocaleString());
       setBrief(res.data);
       setState('result');

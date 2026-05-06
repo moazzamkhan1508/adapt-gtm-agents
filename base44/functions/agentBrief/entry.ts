@@ -43,47 +43,73 @@ async function runAI(base44, prompt) {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { query } = await req.json();
-    if (!query) return Response.json({ error: 'query is required' }, { status: 400 });
+    const { query, email, hubspotId } = await req.json();
+    if (!query && !email && !hubspotId) return Response.json({ error: 'query is required' }, { status: 400 });
 
     const hubspotToken = Deno.env.get('HUBSPOT_PRIVATE_APP_TOKEN');
     if (!hubspotToken) return Response.json({ error: 'HUBSPOT_PRIVATE_APP_TOKEN not set' }, { status: 500 });
 
     const headers = { Authorization: `Bearer ${hubspotToken}`, 'Content-Type': 'application/json' };
 
-    // ── 1. SEARCH CONTACT ──────────────────────────────────────────────────────
-    const searchRes = await fetch('https://api.hubapi.com/crm/v3/objects/contacts/search', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        filterGroups: [
-          { filters: [{ propertyName: 'email', operator: 'CONTAINS_TOKEN', value: query }] },
-          { filters: [{ propertyName: 'firstname', operator: 'CONTAINS_TOKEN', value: query }] },
-          { filters: [{ propertyName: 'lastname', operator: 'CONTAINS_TOKEN', value: query }] },
-          { filters: [{ propertyName: 'company', operator: 'CONTAINS_TOKEN', value: query }] },
-        ],
-        properties: [
-          'firstname', 'lastname', 'email', 'jobtitle', 'company',
-          'lifecyclestage', 'hs_last_sales_activity_date', 'phone',
-          'linkedin_url', 'linkedinbio', 'hs_object_source_label',
-          'hs_object_source_id', 'createdate', 'city', 'country',
-          'num_associated_deals', 'hs_email_last_open_date',
-        ],
-        limit: 1,
-      }),
-    });
+    const contactProps = [
+      'firstname', 'lastname', 'email', 'jobtitle', 'company',
+      'lifecyclestage', 'hs_last_sales_activity_date', 'phone',
+      'linkedin_url', 'linkedinbio', 'hs_object_source_label',
+      'hs_object_source_id', 'createdate', 'city', 'country',
+      'num_associated_deals', 'hs_email_last_open_date',
+    ];
 
-    const searchData = await searchRes.json();
-    const contact = searchData.results?.[0];
+    // ── 1. FETCH CONTACT — by ID (fastest), then email, then name search ───────
+    let contact = null;
+
+    if (hubspotId) {
+      const directRes = await fetch(
+        `https://api.hubapi.com/crm/v3/objects/contacts/${hubspotId}?properties=${contactProps.join(',')}`,
+        { headers }
+      );
+      if (directRes.ok) {
+        const d = await directRes.json();
+        contact = { id: d.id, properties: d.properties };
+      }
+    }
+
+    if (!contact && email) {
+      const emailRes = await fetch('https://api.hubapi.com/crm/v3/objects/contacts/search', {
+        method: 'POST', headers,
+        body: JSON.stringify({
+          filterGroups: [{ filters: [{ propertyName: 'email', operator: 'EQ', value: email }] }],
+          properties: contactProps, limit: 1,
+        }),
+      });
+      const emailData = await emailRes.json();
+      contact = emailData.results?.[0] || null;
+    }
+
+    if (!contact && query) {
+      const nameParts = query.trim().split(' ');
+      const filterGroups = [];
+      if (nameParts.length >= 2) {
+        filterGroups.push({ filters: [
+          { propertyName: 'firstname', operator: 'EQ', value: nameParts[0] },
+          { propertyName: 'lastname', operator: 'EQ', value: nameParts.slice(1).join(' ') },
+        ]});
+      }
+      filterGroups.push({ filters: [{ propertyName: 'email', operator: 'CONTAINS_TOKEN', value: query }] });
+      const nameRes = await fetch('https://api.hubapi.com/crm/v3/objects/contacts/search', {
+        method: 'POST', headers,
+        body: JSON.stringify({ filterGroups, properties: contactProps, limit: 1 }),
+      });
+      const nameData = await nameRes.json();
+      contact = nameData.results?.[0] || null;
+    }
 
     // ── NO HUBSPOT RECORD — enrich via AI web search ───────────────────────────
     if (!contact) {
-      const atMatch = query.match(/^(.+?)\s+at\s+([^(]+)/i);
-      const parsedName = atMatch ? atMatch[1].trim() : query.split('(')[0].trim();
-      const parsedCompany = atMatch ? atMatch[2].trim() : null;
+      const parsedName = query || email || 'Unknown';
+      const parsedCompany = null;
 
       const prompt = `You are a GTM intelligence agent preparing a pre-meeting brief for a B2B sales rep.
-Contact: ${parsedName}${parsedCompany ? `, at ${parsedCompany}` : ''}
+Contact: ${parsedName}
 Note: This contact was NOT found in HubSpot CRM.
 
 Search the web and return a JSON object with exactly these 6 keys:
