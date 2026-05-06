@@ -62,6 +62,8 @@ export default function BriefView({ brief, contact, generatedAt }) {
     meetings = [],
     notes = [],
     companyNews = [],
+    linkedinProfile = null,
+    companyIntel = null,
     talkingPoints = [],
     riskFlags = [],
     suggestedOpener,
@@ -230,21 +232,125 @@ export default function BriefView({ brief, contact, generatedAt }) {
         </Card>
       )}
 
-      {/* Company news */}
-      {companyNews.length > 0 && (
-        <Card>
+      {/* LinkedIn Profile */}
+      {linkedinProfile && (
+        <Card borderLeft="#0A66C2">
+          <SectionLabel>LINKEDIN PROFILE · {contactInfo.name}</SectionLabel>
+          <div className="space-y-4">
+            {/* Synopsis */}
+            <div>
+              <p style={{ fontSize: '13px', color: '#1A2330', lineHeight: 1.6 }}>{linkedinProfile.synopsis}</p>
+              {linkedinProfile.totalExperience && (
+                <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: '#8A9BAA', marginTop: '6px' }}>
+                  ~{linkedinProfile.totalExperience} years experience
+                </p>
+              )}
+            </div>
+
+            {/* Previous companies */}
+            {linkedinProfile.previousCompanies?.length > 0 && (
+              <div>
+                <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#8A9BAA', letterSpacing: '0.06em', marginBottom: '8px' }}>CAREER HISTORY</p>
+                <div className="space-y-2">
+                  {linkedinProfile.previousCompanies.map((role, i) => (
+                    <div key={i} className="flex items-start gap-2">
+                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#DDE2E8', marginTop: '5px', flexShrink: 0 }} />
+                      <div>
+                        <span style={{ fontSize: '12px', fontWeight: 500, color: '#1A2330' }}>{role.title}</span>
+                        <span style={{ fontSize: '12px', color: '#8A9BAA' }}> · {role.company}</span>
+                        {role.tenure && (
+                          <span style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: '#8A9BAA' }}> · {role.tenure}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Recent LinkedIn activity */}
+            {linkedinProfile.recentActivity && (
+              <div style={{ background: '#EFF5FF', border: '1px solid #BFCFFF', borderRadius: '8px', padding: '10px 12px' }}>
+                <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#2563EB', letterSpacing: '0.06em', marginBottom: '6px' }}>RECENT ACTIVITY</p>
+                <p style={{ fontSize: '12px', color: '#1A2330', lineHeight: 1.6 }}>{linkedinProfile.recentActivity}</p>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {/* Company Intel */}
+      {companyIntel && (
+        <Card borderLeft="#C47B10">
           <SectionLabel>COMPANY INTELLIGENCE · {contactInfo.company}</SectionLabel>
           <div className="space-y-4">
-            {companyNews.map((item, i) => (
-              <div key={i} className={i > 0 ? 'pt-4 border-t' : ''} style={{ borderColor: '#DDE2E8' }}>
-                <div className="flex items-start justify-between gap-2 mb-1.5">
-                  <p style={{ fontSize: '13px', fontWeight: 500, color: '#1A2330', lineHeight: 1.4 }}>{item.headline}</p>
-                  <Pill color={item.hot ? 'amber' : 'gray'}>{item.age}</Pill>
+            {/* Company stats row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {companyIntel.founded && (
+                <div style={{ background: '#F5F7F9', border: '1px solid #DDE2E8', borderRadius: '8px', padding: '8px 10px' }}>
+                  <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '8px', color: '#8A9BAA', letterSpacing: '0.06em', marginBottom: '4px' }}>FOUNDED</p>
+                  <p style={{ fontSize: '13px', fontWeight: 600, color: '#1A2330' }}>{companyIntel.founded}</p>
                 </div>
-                <p style={{ fontSize: '12px', color: '#4A5C6A', lineHeight: 1.5, marginBottom: '4px' }}>{item.summary}</p>
-                <p style={{ fontSize: '12px', color: '#159A68', fontStyle: 'italic' }}>→ {item.relevance}</p>
+              )}
+              {companyIntel.size && (
+                <div style={{ background: '#F5F7F9', border: '1px solid #DDE2E8', borderRadius: '8px', padding: '8px 10px' }}>
+                  <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '8px', color: '#8A9BAA', letterSpacing: '0.06em', marginBottom: '4px' }}>TEAM SIZE</p>
+                  <p style={{ fontSize: '12px', fontWeight: 600, color: '#1A2330' }}>{companyIntel.size}</p>
+                </div>
+              )}
+              {companyIntel.revenue && (
+                <div style={{ background: '#F5F7F9', border: '1px solid #DDE2E8', borderRadius: '8px', padding: '8px 10px' }}>
+                  <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '8px', color: '#8A9BAA', letterSpacing: '0.06em', marginBottom: '4px' }}>REVENUE</p>
+                  <p style={{ fontSize: '12px', fontWeight: 600, color: '#1A2330' }}>{companyIntel.revenue}</p>
+                </div>
+              )}
+              {companyIntel.industry && (
+                <div style={{ background: '#F5F7F9', border: '1px solid #DDE2E8', borderRadius: '8px', padding: '8px 10px' }}>
+                  <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '8px', color: '#8A9BAA', letterSpacing: '0.06em', marginBottom: '4px' }}>INDUSTRY</p>
+                  <p style={{ fontSize: '12px', fontWeight: 600, color: '#1A2330' }}>{companyIntel.industry}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Company description */}
+            {companyIntel.description && (
+              <p style={{ fontSize: '13px', color: '#4A5C6A', lineHeight: 1.6 }}>{companyIntel.description}</p>
+            )}
+
+            {/* Social channels */}
+            {companyIntel.socialChannels?.length > 0 && (
+              <div>
+                <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#8A9BAA', letterSpacing: '0.06em', marginBottom: '8px' }}>SOCIAL PRESENCE</p>
+                <div className="flex flex-wrap gap-2">
+                  {companyIntel.socialChannels.map((ch, i) => (
+                    <div key={i} style={{ background: '#F5F7F9', border: '1px solid #DDE2E8', borderRadius: '6px', padding: '5px 10px' }}>
+                      <span style={{ fontSize: '11px', fontWeight: 600, color: '#1A2330' }}>{ch.platform}</span>
+                      {ch.handle && <span style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: '#8A9BAA' }}> · {ch.handle}</span>}
+                      {ch.focus && <span style={{ fontSize: '10px', color: '#4A5C6A' }}> — {ch.focus}</span>}
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
+            )}
+
+            {/* Latest news */}
+            {companyIntel.latestNews?.length > 0 && (
+              <div>
+                <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#8A9BAA', letterSpacing: '0.06em', marginBottom: '8px' }}>LATEST NEWS</p>
+                <div className="space-y-3">
+                  {companyIntel.latestNews.map((item, i) => (
+                    <div key={i} className={i > 0 ? 'pt-3 border-t' : ''} style={{ borderColor: '#DDE2E8' }}>
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <p style={{ fontSize: '13px', fontWeight: 500, color: '#1A2330', lineHeight: 1.4 }}>{item.headline}</p>
+                        <Pill color={item.hot ? 'amber' : 'gray'}>{item.age}</Pill>
+                      </div>
+                      <p style={{ fontSize: '12px', color: '#4A5C6A', lineHeight: 1.5, marginBottom: '3px' }}>{item.summary}</p>
+                      {item.relevance && <p style={{ fontSize: '12px', color: '#159A68', fontStyle: 'italic' }}>→ {item.relevance}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </Card>
       )}
@@ -285,7 +391,7 @@ export default function BriefView({ brief, contact, generatedAt }) {
       )}
 
       <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: '#8A9BAA' }}>
-        Source: HubSpot CRM + Claude AI · {new Date().toLocaleString()}
+        Source: HubSpot CRM + LinkedIn + Claude AI web search · {new Date().toLocaleString()}
       </p>
     </div>
   );

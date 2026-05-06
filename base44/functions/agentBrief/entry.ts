@@ -140,7 +140,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ── 5. CLAUDE AI — Company News, Talking Points, Risk Flags, Opener ────────
+    // ── 5. CLAUDE AI — LinkedIn Profile, Company Intel, Talking Points, Risk Flags ──
     const lastActivity = props.hs_last_sales_activity_date
       ? new Date(props.hs_last_sales_activity_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
       : null;
@@ -150,8 +150,10 @@ Deno.serve(async (req) => {
     let talkingPoints = [];
     let riskFlags = [];
     let suggestedOpener = '';
+    let linkedinProfile = null;
+    let companyIntel = null;
 
-    if (anthropic && company) {
+    if (anthropic) {
       const contextBlob = JSON.stringify({
         contact: { name: fullName, title: props.jobtitle, company, email: props.email, lifecycle, lastActivity, fromApollo },
         deals,
@@ -161,28 +163,50 @@ Deno.serve(async (req) => {
 
       const aiRes = await anthropic.messages.create({
         model: 'claude-opus-4-5',
-        max_tokens: 1200,
+        max_tokens: 2400,
         messages: [{
           role: 'user',
           content: `You are a GTM intelligence agent preparing a pre-meeting brief for a B2B sales rep.
 
-Here is the CRM context for the upcoming meeting:
+CRM context:
 ${contextBlob}
 
-Search the web and generate a JSON response with these fields:
-- companyNews: array of up to 3 objects { headline, summary, age, hot, relevance } — REAL recent news about "${company}" (funding, product launches, leadership changes, expansions). "hot" is boolean for recent < 30 days.
-- talkingPoints: array of 4 sharp, specific talking points based on the CRM context and news
-- riskFlags: array of up to 4 specific risk flags (deal staleness, lifecycle stage, competitor mentions in notes, etc.)
-- suggestedOpener: one natural, personalised opening line referencing something specific from context or news
+Search the web thoroughly and generate a JSON response with EXACTLY these 6 keys:
 
-Return ONLY valid JSON with exactly those 4 keys. No markdown, no preamble.`,
+1. "linkedinProfile": object with:
+   - synopsis: 2-3 sentence career summary for ${fullName} based on their LinkedIn profile
+   - currentRole: their current title and company
+   - previousCompanies: array of up to 4 objects { company, title, tenure } — last few roles with estimated tenures
+   - recentActivity: 2-3 sentences on their recent LinkedIn posts, articles, or engagement themes (what topics they post about)
+   - totalExperience: estimated years in the field
+
+2. "companyIntel": object with:
+   - founded: year the company was founded
+   - size: employee count range (e.g. "50-200 employees")
+   - revenue: estimated annual revenue range
+   - industry: industry/sector
+   - description: 2 sentence company overview from their website
+   - socialChannels: array of objects { platform, handle, focus } — their active social media presence
+   - latestNews: array of up to 3 objects { headline, summary, age, hot, relevance } — REAL recent news about "${company || 'the company'}" (funding, launches, leadership). "hot" boolean = news < 30 days old.
+
+3. "companyNews": array of up to 3 objects { headline, summary, age, hot, relevance } — same as latestNews above (duplicate for backward compat)
+
+4. "talkingPoints": array of 4 sharp, specific talking points based on CRM context, LinkedIn activity, and company news
+
+5. "riskFlags": array of up to 4 specific risk flags (deal staleness, lifecycle stage, competitor mentions, etc.)
+
+6. "suggestedOpener": one natural, personalised opening line referencing something specific from their LinkedIn activity or company news
+
+Return ONLY valid JSON with exactly those 6 keys. No markdown, no preamble.`,
         }],
       });
 
       const aiText = aiRes.content[0]?.text || '{}';
       const cleaned = aiText.replace(/```json|```/g, '').trim();
       const parsed = JSON.parse(cleaned);
-      companyNews = parsed.companyNews || [];
+      linkedinProfile = parsed.linkedinProfile || null;
+      companyIntel = parsed.companyIntel || null;
+      companyNews = parsed.companyNews || parsed.companyIntel?.latestNews || [];
       talkingPoints = parsed.talkingPoints || [];
       riskFlags = parsed.riskFlags || [];
       suggestedOpener = parsed.suggestedOpener || '';
@@ -229,6 +253,8 @@ Return ONLY valid JSON with exactly those 4 keys. No markdown, no preamble.`,
       meetings,
       notes,
       companyNews,
+      linkedinProfile,
+      companyIntel,
       talkingPoints,
       riskFlags,
       suggestedOpener,
