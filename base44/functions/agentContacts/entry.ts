@@ -3,7 +3,7 @@ Deno.serve(async (req) => {
     const hubspotToken = Deno.env.get('HUBSPOT_PRIVATE_APP_TOKEN');
     if (!hubspotToken) return Response.json({ error: 'HUBSPOT_PRIVATE_APP_TOKEN not set' }, { status: 500 });
 
-    const url = 'https://api.hubapi.com/crm/v3/objects/contacts?limit=100&properties=firstname,lastname,email,company,jobtitle,lifecyclestage';
+    const url = 'https://api.hubapi.com/crm/v3/objects/contacts?limit=10&properties=firstname,lastname,email,company,jobtitle,lifecyclestage&sort=-hs_lastmodifieddate';
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${hubspotToken}`, 'Content-Type': 'application/json' }
     });

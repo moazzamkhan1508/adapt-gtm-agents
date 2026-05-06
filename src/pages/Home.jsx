@@ -15,12 +15,13 @@ export default function Home() {
 
   useEffect(() => {
     base44.functions.invoke('agentContacts', {})
-      .then(res => {
-        const list = res.data?.contacts || [];
-        setContacts(list);
-      })
-      .catch(() => setContacts([]))
-      .finally(() => setLoadingContacts(false));
+    .then(res => {
+      const list = res.data?.contacts || [];
+      setContacts(list);
+      if (list.length > 0) setSelectedContact(list[0]);
+    })
+    .catch(() => setContacts([]))
+    .finally(() => setLoadingContacts(false));
   }, []);
 
   return (
