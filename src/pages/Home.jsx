@@ -28,7 +28,11 @@ export default function Home() {
       .finally(() => setLoadingContacts(false));
 
     base44.functions.invoke('agentMeetings', {})
-      .then(res => setMeetings(res.data?.meetings || []))
+      .then(res => {
+        const data = res.data;
+        const list = data?.meetings || data?.data?.meetings || [];
+        setMeetings(list);
+      })
       .catch(() => setMeetings([]))
       .finally(() => setLoadingMeetings(false));
   }, []);
