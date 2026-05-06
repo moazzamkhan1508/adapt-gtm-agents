@@ -3,9 +3,16 @@ Deno.serve(async (req) => {
     const hubspotToken = Deno.env.get('HUBSPOT_PRIVATE_APP_TOKEN');
     if (!hubspotToken) return Response.json({ error: 'HUBSPOT_PRIVATE_APP_TOKEN not set' }, { status: 500 });
 
-    const url = 'https://api.hubapi.com/crm/v3/objects/contacts?limit=10&properties=firstname,lastname,email,company,jobtitle,lifecyclestage&sort=-hs_lastmodifieddate';
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${hubspotToken}`, 'Content-Type': 'application/json' }
+    // Use search endpoint to sort by last modified date
+    const res = await fetch('https://api.hubapi.com/crm/v3/objects/contacts/search', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${hubspotToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filterGroups: [],
+        properties: ['firstname', 'lastname', 'email', 'company', 'jobtitle', 'lifecyclestage'],
+        sorts: [{ propertyName: 'hs_lastmodifieddate', direction: 'DESCENDING' }],
+        limit: 10,
+      }),
     });
 
     const data = await res.json();
