@@ -12,34 +12,34 @@ export default function NavBar({ contactCount, dealCount }) {
   }, []);
 
   return (
-    <nav style={{ background: '#080A09', borderBottom: '1px solid #222922', height: '50px' }}
-      className="sticky top-0 z-50 flex items-center justify-between px-4 md:px-6">
+    <nav style={{ background: '#FFFFFF', borderBottom: '1px solid #DDE2E8', height: '50px' }}
+      className="sticky top-0 z-50 flex items-center justify-between px-4 md:px-6 shadow-sm">
       <div className="flex items-center gap-3">
-        <div style={{ background: '#2EE8A0', borderRadius: '6px', width: '28px', height: '28px' }}
+        <div style={{ background: '#159A68', borderRadius: '6px', width: '28px', height: '28px' }}
           className="flex items-center justify-center flex-shrink-0">
-          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '14px', color: '#080A09' }}>A</span>
+          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '14px', color: '#FFFFFF' }}>A</span>
         </div>
-        <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '15px', color: '#E8EDE9', letterSpacing: '-0.02em' }}>
+        <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '15px', color: '#1A2330', letterSpacing: '-0.02em' }}>
           Adapt
         </span>
-        <div style={{ width: '1px', height: '16px', background: '#222922' }} />
-        <span style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', color: '#4A5E4C' }}>
+        <div style={{ width: '1px', height: '16px', background: '#DDE2E8' }} />
+        <span style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', color: '#8A9BAA' }}>
           GTM Agent System · Live HubSpot Demo
         </span>
       </div>
 
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 px-3 py-1 rounded-full"
-          style={{ background: status.checking ? '#1C221D' : status.connected ? 'rgba(46,232,160,0.08)' : 'rgba(240,80,80,0.08)', border: `1px solid ${status.checking ? '#2A322A' : status.connected ? 'rgba(46,232,160,0.25)' : 'rgba(240,80,80,0.25)'}` }}>
+          style={{ background: status.checking ? '#F5F7F9' : status.connected ? '#E8F7F1' : '#FEF0F0', border: `1px solid ${status.checking ? '#DDE2E8' : status.connected ? '#A8DCC8' : '#F5AAAA'}` }}>
           <div className="w-1.5 h-1.5 rounded-full"
-            style={{ background: status.checking ? '#4A5E4C' : status.connected ? '#2EE8A0' : '#F05050' }} />
-          <span style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: status.checking ? '#4A5E4C' : status.connected ? '#2EE8A0' : '#F05050' }}>
+            style={{ background: status.checking ? '#8A9BAA' : status.connected ? '#159A68' : '#D93030' }} />
+          <span style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: status.checking ? '#8A9BAA' : status.connected ? '#159A68' : '#D93030' }}>
             {status.checking ? 'Checking…' : status.connected
               ? `HubSpot connected${contactCount ? ` · ${contactCount} contacts` : ''}${dealCount ? ` · ${dealCount} deals` : ''}`
               : '⚠ Server offline'}
           </span>
         </div>
-        <span style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: '#4A5E4C' }} className="hidden md:block">
+        <span style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: '#8A9BAA' }} className="hidden md:block">
           {today}
         </span>
       </div>

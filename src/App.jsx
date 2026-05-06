@@ -12,7 +12,7 @@ const AuthenticatedApp = () => {
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center" style={{ background: '#080A09' }}>
+      <div className="fixed inset-0 flex items-center justify-center" style={{ background: '#F5F7F9' }}>
         <div className="w-2 h-2 rounded-full pulse-dot" style={{ background: '#2EE8A0' }} />
       </div>
     );

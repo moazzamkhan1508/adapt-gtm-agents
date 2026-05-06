@@ -53,11 +53,11 @@ export default function Agent01({ selectedContact }) {
     return (
       <div className="flex flex-col items-center justify-center h-full py-24 px-8 text-center">
         <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5"
-          style={{ background: 'rgba(46,232,160,0.08)', border: '1px solid rgba(46,232,160,0.2)' }}>
-          <Zap className="w-6 h-6" style={{ color: '#2EE8A0' }} />
+          style={{ background: '#E8F7F1', border: '1px solid #A8DCC8' }}>
+          <Zap className="w-6 h-6" style={{ color: '#159A68' }} />
         </div>
-        <p style={{ fontSize: '16px', fontWeight: 500, color: '#8A9E8C', marginBottom: '6px' }}>Select a contact</p>
-        <p style={{ fontSize: '13px', color: '#4A5E4C', maxWidth: '280px', lineHeight: 1.6 }}>
+        <p style={{ fontSize: '16px', fontWeight: 500, color: '#4A5C6A', marginBottom: '6px' }}>Select a contact</p>
+        <p style={{ fontSize: '13px', color: '#8A9BAA', maxWidth: '280px', lineHeight: 1.6 }}>
           Choose a contact from the sidebar to generate a pre-meeting intelligence brief.
         </p>
       </div>
@@ -78,9 +78,9 @@ export default function Agent01({ selectedContact }) {
   if (state === 'error') {
     return (
       <div className="p-6">
-        <div className="rounded-xl p-5" style={{ background: '#2A0F0F', border: '1px solid rgba(240,80,80,0.3)' }}>
-          <p style={{ fontSize: '14px', fontWeight: 600, color: '#F05050', marginBottom: '8px' }}>Failed to generate brief</p>
-          <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', color: '#8A9E8C', lineHeight: 1.6 }}>{error}</p>
+        <div className="rounded-xl p-5" style={{ background: '#FEF0F0', border: '1px solid #F5AAAA' }}>
+          <p style={{ fontSize: '14px', fontWeight: 600, color: '#D93030', marginBottom: '8px' }}>Failed to generate brief</p>
+          <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', color: '#4A5C6A', lineHeight: 1.6 }}>{error}</p>
         </div>
       </div>
     );

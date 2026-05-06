@@ -26,9 +26,9 @@ const STEPS = [
 
 function Pill({ children, color = 'teal' }) {
   const styles = {
-    teal: { bg: 'rgba(46,232,160,0.08)', border: 'rgba(46,232,160,0.2)', text: '#2EE8A0' },
-    amber: { bg: '#2A1E08', border: 'rgba(240,180,41,0.25)', text: '#F0B429' },
-    blue: { bg: '#0D1E36', border: 'rgba(96,165,250,0.25)', text: '#60A5FA' },
+    teal: { bg: '#E8F7F1', border: '#A8DCC8', text: '#159A68' },
+    amber: { bg: '#FEF6E4', border: '#F0D090', text: '#C47B10' },
+    blue: { bg: '#EFF5FF', border: '#BFCFFF', text: '#2563EB' },
   };
   const s = styles[color] || styles.teal;
   return (
@@ -78,27 +78,27 @@ export default function Agent02() {
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: '#4A5E4C', marginBottom: '4px' }}>AGENT 02</p>
-          <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: '20px', fontWeight: 600, color: '#E8EDE9', marginBottom: '4px' }}>Post-Call Follow-up</h2>
-          <p style={{ fontSize: '13px', color: '#8A9E8C' }}>Paste a call transcript to extract insights, draft an email, and get HubSpot update recommendations.</p>
+          <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: '#8A9BAA', marginBottom: '4px' }}>AGENT 02</p>
+          <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: '20px', fontWeight: 600, color: '#1A2330', marginBottom: '4px' }}>Post-Call Follow-up</h2>
+          <p style={{ fontSize: '13px', color: '#4A5C6A' }}>Paste a call transcript to extract insights, draft an email, and get HubSpot update recommendations.</p>
         </div>
         <button onClick={loadSample}
           className="px-3 py-1.5 rounded text-xs transition-all hover:opacity-80"
-          style={{ background: '#1C221D', border: '1px solid #2A322A', color: '#8A9E8C', fontFamily: 'IBM Plex Mono, monospace', whiteSpace: 'nowrap' }}>
+          style={{ background: '#F5F7F9', border: '1px solid #DDE2E8', color: '#4A5C6A', fontFamily: 'IBM Plex Mono, monospace', whiteSpace: 'nowrap' }}>
           Load sample
         </button>
       </div>
 
       {/* Input area */}
       {state !== 'loading' && state !== 'result' && (
-        <div style={{ background: '#0F1210', border: '1px solid #222922', borderRadius: '10px', padding: '16px', marginBottom: '16px' }}>
+        <div style={{ background: '#FFFFFF', border: '1px solid #DDE2E8', borderRadius: '10px', padding: '16px', marginBottom: '16px' }}>
           <textarea
             value={transcript}
             onChange={e => setTranscript(e.target.value)}
             placeholder="Paste call transcript here…"
             style={{
               width: '100%', minHeight: '130px', background: 'transparent', border: 'none',
-              outline: 'none', color: '#E8EDE9', fontFamily: 'IBM Plex Mono, monospace',
+              outline: 'none', color: '#1A2330', fontFamily: 'IBM Plex Mono, monospace',
               fontSize: '12px', lineHeight: 1.7, resize: 'vertical'
             }}
           />
@@ -107,13 +107,13 @@ export default function Agent02() {
               value={contact}
               onChange={e => setContact(e.target.value)}
               placeholder="Contact name, e.g. Gal Levi at Eon.io"
-              style={{ flex: 1, minWidth: '200px', background: '#151A16', border: '1px solid #222922', borderRadius: '6px', padding: '8px 12px', color: '#E8EDE9', fontSize: '12px', outline: 'none' }}
+              style={{ flex: 1, minWidth: '200px', background: '#F5F7F9', border: '1px solid #DDE2E8', borderRadius: '6px', padding: '8px 12px', color: '#1A2330', fontSize: '12px', outline: 'none' }}
             />
             <button onClick={analyse} disabled={!transcript.trim()}
               style={{
-                background: !transcript.trim() ? '#1C221D' : '#0D1E36',
-                border: `1px solid ${!transcript.trim() ? '#2A322A' : 'rgba(96,165,250,0.3)'}`,
-                color: !transcript.trim() ? '#4A5E4C' : '#60A5FA',
+                background: !transcript.trim() ? '#F5F7F9' : '#EFF5FF',
+                border: `1px solid ${!transcript.trim() ? '#DDE2E8' : '#BFCFFF'}`,
+                color: !transcript.trim() ? '#8A9BAA' : '#2563EB',
                 padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 500, cursor: transcript.trim() ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap'
               }}>
               Analyse transcript ↗
@@ -124,15 +124,15 @@ export default function Agent02() {
 
       {/* Loading */}
       {state === 'loading' && (
-        <LoadingSteps steps={STEPS} currentStep={currentStep} accentColor="#60A5FA" title={contact || 'Analysing transcript…'} />
+        <LoadingSteps steps={STEPS} currentStep={currentStep} accentColor="#2563EB" title={contact || 'Analysing transcript…'} />
       )}
 
       {/* Error */}
       {state === 'error' && (
-        <div className="rounded-xl p-5 mb-4" style={{ background: '#2A0F0F', border: '1px solid rgba(240,80,80,0.3)' }}>
-          <p style={{ fontSize: '14px', fontWeight: 600, color: '#F05050', marginBottom: '8px' }}>Analysis failed</p>
-          <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', color: '#8A9E8C' }}>{error}</p>
-          <button onClick={() => setState('idle')} className="mt-3 text-xs" style={{ color: '#60A5FA' }}>Try again</button>
+        <div className="rounded-xl p-5 mb-4" style={{ background: '#FEF0F0', border: '1px solid #F5AAAA' }}>
+          <p style={{ fontSize: '14px', fontWeight: 600, color: '#D93030', marginBottom: '8px' }}>Analysis failed</p>
+          <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', color: '#4A5C6A' }}>{error}</p>
+          <button onClick={() => setState('idle')} className="mt-3 text-xs" style={{ color: '#2563EB' }}>Try again</button>
         </div>
       )}
 
@@ -142,35 +142,35 @@ export default function Agent02() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Pill color="blue">Analysis complete</Pill>
-              {result.contact && <span style={{ fontSize: '13px', color: '#8A9E8C' }}>{result.contact}</span>}
+              {result.contact && <span style={{ fontSize: '13px', color: '#4A5C6A' }}>{result.contact}</span>}
             </div>
-            <button onClick={() => setState('idle')} style={{ fontSize: '12px', color: '#4A5E4C', fontFamily: 'IBM Plex Mono, monospace' }}>← New analysis</button>
+            <button onClick={() => setState('idle')} style={{ fontSize: '12px', color: '#8A9BAA', fontFamily: 'IBM Plex Mono, monospace' }}>← New analysis</button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Left column */}
             <div className="space-y-4">
               {/* Pain points */}
-              <div style={{ background: '#0F1210', border: '1px solid rgba(96,165,250,0.25)', borderLeft: '3px solid #60A5FA', borderRadius: '10px', padding: '16px' }}>
-                <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#60A5FA', marginBottom: '10px', letterSpacing: '0.08em' }}>PAIN POINTS EXTRACTED</p>
+              <div style={{ background: '#FFFFFF', border: '1px solid #BFCFFF', borderLeft: '3px solid #2563EB', borderRadius: '10px', padding: '16px' }}>
+                <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#2563EB', marginBottom: '10px', letterSpacing: '0.08em' }}>PAIN POINTS EXTRACTED</p>
                 <div className="space-y-2">
                   {(result.painPoints || []).map((pt, i) => (
                     <div key={i} className="flex items-start gap-2">
-                      <span style={{ color: '#60A5FA', fontSize: '12px', marginTop: '1px', flexShrink: 0 }}>▸</span>
-                      <p style={{ fontSize: '13px', color: '#E8EDE9', lineHeight: 1.5 }}>{pt}</p>
+                      <span style={{ color: '#2563EB', fontSize: '12px', marginTop: '1px', flexShrink: 0 }}>▸</span>
+                      <p style={{ fontSize: '13px', color: '#1A2330', lineHeight: 1.5 }}>{pt}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Commitments */}
-              <div style={{ background: '#0F1210', border: '1px solid #222922', borderRadius: '10px', padding: '16px' }}>
-                <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#4A5E4C', marginBottom: '10px', letterSpacing: '0.08em' }}>COMMITMENTS MADE</p>
+              <div style={{ background: '#FFFFFF', border: '1px solid #DDE2E8', borderRadius: '10px', padding: '16px' }}>
+                <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#8A9BAA', marginBottom: '10px', letterSpacing: '0.08em' }}>COMMITMENTS MADE</p>
                 <div className="space-y-2">
                   {(result.commitments || []).map((c, i) => (
                     <div key={i} className="flex items-start gap-2">
-                      <span style={{ color: '#2EE8A0', fontSize: '12px', marginTop: '1px', flexShrink: 0 }}>✓</span>
-                      <p style={{ fontSize: '13px', color: '#E8EDE9', lineHeight: 1.5 }}>{c}</p>
+                      <span style={{ color: '#159A68', fontSize: '12px', marginTop: '1px', flexShrink: 0 }}>✓</span>
+                      <p style={{ fontSize: '13px', color: '#1A2330', lineHeight: 1.5 }}>{c}</p>
                     </div>
                   ))}
                 </div>
@@ -178,10 +178,10 @@ export default function Agent02() {
 
               {/* Next step */}
               {result.nextStep && (
-                <div style={{ background: '#0F1210', border: '1px solid #222922', borderRadius: '10px', padding: '16px' }}>
-                  <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#4A5E4C', marginBottom: '8px', letterSpacing: '0.08em' }}>NEXT STEP</p>
-                  <p style={{ fontSize: '13px', fontWeight: 600, color: '#E8EDE9' }}>{result.nextStep}</p>
-                  {result.nextStepDate && <p style={{ fontSize: '11px', color: '#8A9E8C', marginTop: '4px', fontFamily: 'IBM Plex Mono, monospace' }}>{result.nextStepDate}</p>}
+                <div style={{ background: '#FFFFFF', border: '1px solid #DDE2E8', borderRadius: '10px', padding: '16px' }}>
+                  <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#8A9BAA', marginBottom: '8px', letterSpacing: '0.08em' }}>NEXT STEP</p>
+                  <p style={{ fontSize: '13px', fontWeight: 600, color: '#1A2330' }}>{result.nextStep}</p>
+                  {result.nextStepDate && <p style={{ fontSize: '11px', color: '#8A9BAA', marginTop: '4px', fontFamily: 'IBM Plex Mono, monospace' }}>{result.nextStepDate}</p>}
                 </div>
               )}
             </div>
@@ -190,9 +190,9 @@ export default function Agent02() {
             <div className="space-y-4">
               {/* Email draft */}
               {result.emailDraft && (
-                <div style={{ background: '#0F1210', border: '1px solid rgba(96,165,250,0.2)', borderLeft: '3px solid #60A5FA', borderRadius: '10px', padding: '16px' }}>
-                  <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#60A5FA', marginBottom: '10px', letterSpacing: '0.08em' }}>DRAFT FOLLOW-UP EMAIL · 1-CLICK SEND</p>
-                  <pre style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', color: '#8A9E8C', lineHeight: 1.85, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                <div style={{ background: '#FFFFFF', border: '1px solid #BFCFFF', borderLeft: '3px solid #2563EB', borderRadius: '10px', padding: '16px' }}>
+                  <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#2563EB', marginBottom: '10px', letterSpacing: '0.08em' }}>DRAFT FOLLOW-UP EMAIL · 1-CLICK SEND</p>
+                  <pre style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', color: '#4A5C6A', lineHeight: 1.85, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                     {result.emailDraft}
                   </pre>
                 </div>
@@ -200,13 +200,13 @@ export default function Agent02() {
 
               {/* HubSpot updates */}
               {result.hubspotUpdates?.length > 0 && (
-                <div style={{ background: '#0F1210', border: '1px solid rgba(240,180,41,0.2)', borderLeft: '3px solid #F0B429', borderRadius: '10px', padding: '16px' }}>
-                  <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#F0B429', marginBottom: '10px', letterSpacing: '0.08em' }}>HUBSPOT UPDATES</p>
+                <div style={{ background: '#FFFFFF', border: '1px solid #F0D090', borderLeft: '3px solid #C47B10', borderRadius: '10px', padding: '16px' }}>
+                  <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#C47B10', marginBottom: '10px', letterSpacing: '0.08em' }}>HUBSPOT UPDATES</p>
                   <div className="space-y-2">
                     {result.hubspotUpdates.map((upd, i) => (
                       <div key={i} className="flex items-start gap-2">
-                        <span style={{ color: '#60A5FA', fontSize: '12px', marginTop: '1px', flexShrink: 0 }}>→</span>
-                        <p style={{ fontSize: '13px', color: '#E8EDE9', lineHeight: 1.5 }}>{upd}</p>
+                        <span style={{ color: '#2563EB', fontSize: '12px', marginTop: '1px', flexShrink: 0 }}>→</span>
+                        <p style={{ fontSize: '13px', color: '#1A2330', lineHeight: 1.5 }}>{upd}</p>
                       </div>
                     ))}
                   </div>
@@ -215,8 +215,8 @@ export default function Agent02() {
             </div>
           </div>
 
-          <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: '#4A5E4C' }}>
-            Source: HubSpot CRM · Model: claude-sonnet-4-20250514 · {new Date().toLocaleString()}
+          <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: '#8A9BAA' }}>
+            Source: HubSpot CRM · {new Date().toLocaleString()}
           </p>
         </div>
       )}

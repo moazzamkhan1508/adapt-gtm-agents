@@ -1,10 +1,10 @@
-export default function LoadingSteps({ steps, currentStep, accentColor = '#2EE8A0', title }) {
+export default function LoadingSteps({ steps, currentStep, accentColor = '#159A68', title }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-8">
       {title && (
         <div className="mb-8 text-center">
-          <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: '#4A5E4C', marginBottom: '4px' }}>RUNNING ANALYSIS</p>
-          <p style={{ fontSize: '15px', fontWeight: 500, color: '#E8EDE9' }}>{title}</p>
+          <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '10px', color: '#8A9BAA', marginBottom: '4px' }}>RUNNING ANALYSIS</p>
+          <p style={{ fontSize: '15px', fontWeight: 500, color: '#1A2330' }}>{title}</p>
         </div>
       )}
       <div className="flex flex-col gap-3 w-full max-w-sm">
@@ -19,13 +19,12 @@ export default function LoadingSteps({ steps, currentStep, accentColor = '#2EE8A
                 ) : active ? (
                   <div className="w-2 h-2 rounded-full pulse-dot" style={{ background: accentColor }} />
                 ) : (
-                  <div className="w-2 h-2 rounded-full" style={{ background: '#222922' }} />
+                  <div className="w-2 h-2 rounded-full" style={{ background: '#DDE2E8' }} />
                 )}
               </div>
               <span style={{
                 fontSize: '13px',
-                color: done ? '#4A5E4C' : active ? '#E8EDE9' : '#4A5E4C',
-                fontFamily: done || active ? 'inherit' : 'inherit',
+                color: done ? '#8A9BAA' : active ? '#1A2330' : '#8A9BAA',
                 transition: 'color 0.3s'
               }}>
                 {step}

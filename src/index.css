@@ -6,45 +6,45 @@
 
 @layer base {
   :root {
-    --background: 0 0% 3.1%;
-    --foreground: 120 6% 91%;
-    --card: 120 4% 7%;
-    --card-foreground: 120 6% 91%;
-    --popover: 120 4% 7%;
-    --popover-foreground: 120 6% 91%;
-    --primary: 153 76% 56%;
-    --primary-foreground: 120 4% 5%;
-    --secondary: 120 4% 10%;
-    --secondary-foreground: 120 6% 91%;
-    --muted: 120 4% 13%;
-    --muted-foreground: 120 8% 33%;
-    --accent: 120 4% 15%;
-    --accent-foreground: 120 6% 91%;
-    --destructive: 0 79% 63%;
+    --background: 210 20% 98%;
+    --foreground: 220 15% 18%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 18%;
+    --primary: 153 60% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 15% 95%;
+    --secondary-foreground: 220 15% 30%;
+    --muted: 210 15% 93%;
+    --muted-foreground: 220 10% 50%;
+    --accent: 210 15% 90%;
+    --accent-foreground: 220 15% 18%;
+    --destructive: 0 79% 55%;
     --destructive-foreground: 0 0% 98%;
-    --border: 120 4% 14%;
-    --input: 120 4% 14%;
-    --ring: 153 76% 56%;
+    --border: 210 15% 88%;
+    --input: 210 15% 88%;
+    --ring: 153 60% 40%;
     --radius: 0.375rem;
 
-    --bg-primary: #080A09;
-    --bg-secondary: #0F1210;
-    --bg-tertiary: #151A16;
-    --bg-card: #1C221D;
-    --border-default: #222922;
-    --border-hover: #2A322A;
-    --teal: #2EE8A0;
-    --teal-dark: #1A9E6A;
-    --teal-bg: #071F14;
-    --amber: #F0B429;
-    --amber-bg: #2A1E08;
-    --red: #F05050;
-    --red-bg: #2A0F0F;
-    --blue: #60A5FA;
-    --blue-bg: #0D1E36;
-    --text-primary: #E8EDE9;
-    --text-secondary: #8A9E8C;
-    --text-muted: #4A5E4C;
+    --bg-primary: #F5F7F9;
+    --bg-secondary: #FFFFFF;
+    --bg-tertiary: #EEF1F5;
+    --bg-card: #FFFFFF;
+    --border-default: #DDE2E8;
+    --border-hover: #C5CDD7;
+    --teal: #159A68;
+    --teal-dark: #0D7550;
+    --teal-bg: #E8F7F1;
+    --amber: #C47B10;
+    --amber-bg: #FEF6E4;
+    --red: #D93030;
+    --red-bg: #FEF0F0;
+    --blue: #2563EB;
+    --blue-bg: #EFF5FF;
+    --text-primary: #1A2330;
+    --text-secondary: #4A5C6A;
+    --text-muted: #8A9BAA;
   }
 }
 
@@ -54,14 +54,14 @@
   }
 
   body {
-    background-color: #080A09;
-    color: #E8EDE9;
+    background-color: #F5F7F9;
+    color: #1A2330;
     font-family: 'DM Sans', sans-serif;
     @apply antialiased;
   }
 
   html {
-    background-color: #080A09;
+    background-color: #F5F7F9;
   }
 }
 

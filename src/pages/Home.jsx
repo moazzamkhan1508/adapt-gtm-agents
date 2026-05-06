@@ -25,7 +25,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div style={{ background: '#080A09', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: '#F5F7F9', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <NavBar contactCount={contacts.length} />
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} contactCount={contacts.length} />
 
@@ -41,7 +41,7 @@ export default function Home() {
         )}
 
         {/* Main content */}
-        <div style={{ flex: 1, overflowY: 'auto', background: '#080A09' }}>
+        <div style={{ flex: 1, overflowY: 'auto', background: '#F5F7F9' }}>
           {activeTab === 1 && <Agent01 selectedContact={selectedContact} />}
           {activeTab === 2 && <Agent02 />}
           {activeTab === 3 && <Agent03 />}

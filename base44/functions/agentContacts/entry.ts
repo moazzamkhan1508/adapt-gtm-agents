@@ -1,17 +1,25 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+
 Deno.serve(async (req) => {
   try {
     const hubspotToken = Deno.env.get('HUBSPOT_PRIVATE_APP_TOKEN');
     if (!hubspotToken) return Response.json({ error: 'HUBSPOT_PRIVATE_APP_TOKEN not set' }, { status: 500 });
 
-    // Use search endpoint to sort by last modified date
+    const headers = { Authorization: `Bearer ${hubspotToken}`, 'Content-Type': 'application/json' };
+
+    // Fetch recently modified contacts (up to 50), including Apollo source tracking
     const res = await fetch('https://api.hubapi.com/crm/v3/objects/contacts/search', {
       method: 'POST',
-      headers: { Authorization: `Bearer ${hubspotToken}`, 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({
         filterGroups: [],
-        properties: ['firstname', 'lastname', 'email', 'company', 'jobtitle', 'lifecyclestage'],
+        properties: [
+          'firstname', 'lastname', 'email', 'company', 'jobtitle',
+          'lifecyclestage', 'hs_object_source', 'hs_object_source_label',
+          'hs_object_source_id', 'createdate', 'linkedin_url', 'linkedinbio'
+        ],
         sorts: [{ propertyName: 'hs_lastmodifieddate', direction: 'DESCENDING' }],
-        limit: 10,
+        limit: 50,
       }),
     });
 
@@ -23,14 +31,25 @@ Deno.serve(async (req) => {
         const name = `${c.properties.firstname || ''} ${c.properties.lastname || ''}`.trim();
         return name && !name.startsWith('TestFirst') && !name.startsWith('ExampleCo');
       })
-      .map(c => ({
-        id: c.id,
-        name: `${c.properties.firstname || ''} ${c.properties.lastname || ''}`.trim(),
-        email: c.properties.email || null,
-        company: c.properties.company || null,
-        title: c.properties.jobtitle || null,
-        lifecycle: c.properties.lifecyclestage || null,
-      }));
+      .map(c => {
+        const p = c.properties;
+        // Detect Apollo-imported contacts via source label or source id
+        const sourceLabel = (p.hs_object_source_label || '').toLowerCase();
+        const sourceId = (p.hs_object_source_id || '').toLowerCase();
+        const fromApollo = sourceLabel.includes('apollo') || sourceId.includes('apollo');
+
+        return {
+          id: c.id,
+          name: `${p.firstname || ''} ${p.lastname || ''}`.trim(),
+          email: p.email || null,
+          company: p.company || null,
+          title: p.jobtitle || null,
+          lifecycle: p.lifecyclestage || null,
+          fromApollo,
+          linkedinUrl: p.linkedin_url || null,
+          createdDate: p.createdate || null,
+        };
+      });
 
     return Response.json({ contacts });
   } catch (error) {
