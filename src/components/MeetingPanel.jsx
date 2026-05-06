@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Clock, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 
 function getInitials(name) {
   if (!name) return '?';
@@ -138,7 +138,7 @@ function MeetingCard({ meeting, onUseForFollowup, onSelectContact, isExpanded, o
   );
 }
 
-export default function MeetingPanel({ meetings, loading, onUseForFollowup, onSelectContact }) {
+export default function MeetingPanel({ meetings, loading, onUseForFollowup, onSelectContact, onSync, syncing }) {
   const [activeTab, setActiveTab] = useState('upcoming');
   const [expandedId, setExpandedId] = useState(null);
 
@@ -160,7 +160,17 @@ export default function MeetingPanel({ meetings, loading, onUseForFollowup, onSe
     <div style={{ width: '300px', minWidth: '300px', background: '#FFFFFF', borderLeft: '1px solid #DDE2E8', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', flexShrink: 0 }}>
       {/* Header */}
       <div style={{ padding: '12px 14px', borderBottom: '1px solid #DDE2E8' }}>
-        <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '8px', fontWeight: 700, color: '#8A9BAA', letterSpacing: '0.08em', marginBottom: '10px' }}>MEETING CALENDAR · HUBSPOT</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+          <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '8px', fontWeight: 700, color: '#8A9BAA', letterSpacing: '0.08em' }}>MEETING CALENDAR · HUBSPOT</p>
+          <button
+            onClick={onSync}
+            disabled={syncing || loading}
+            title="Sync from HubSpot"
+            style={{ background: 'none', border: 'none', cursor: syncing || loading ? 'not-allowed' : 'pointer', padding: '2px', display: 'flex', alignItems: 'center', opacity: syncing || loading ? 0.5 : 1 }}
+          >
+            <RefreshCw size={11} color="#8A9BAA" style={{ animation: syncing || loading ? 'spin 1s linear infinite' : 'none' }} />
+          </button>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <button style={tabStyle('upcoming')} onClick={() => setActiveTab('upcoming')}>
             Upcoming ({upcoming.length})
@@ -197,9 +207,10 @@ export default function MeetingPanel({ meetings, loading, onUseForFollowup, onSe
       </div>
 
       {/* Footer */}
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       <div style={{ padding: '8px 14px', borderTop: '1px solid #DDE2E8', background: '#FFFFFF' }}>
         <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#8A9BAA' }}>
-          {meetings.length} meetings · Last sync {new Date().toLocaleTimeString()}
+          {meetings.length} meetings · {syncing ? 'Syncing…' : `Last sync ${new Date().toLocaleTimeString()}`}
         </p>
       </div>
     </div>

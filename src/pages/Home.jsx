@@ -15,7 +15,23 @@ export default function Home() {
   const [selectedContact, setSelectedContact] = useState(null);
   const [meetings, setMeetings] = useState([]);
   const [loadingMeetings, setLoadingMeetings] = useState(true);
+  const [syncingMeetings, setSyncingMeetings] = useState(false);
   const [followupData, setFollowupData] = useState(null);
+
+  const fetchMeetings = async (isManual = false) => {
+    if (isManual) setSyncingMeetings(true);
+    else setLoadingMeetings(true);
+    try {
+      const res = await base44.functions.invoke('agentMeetings', {});
+      const list = res.data?.meetings || [];
+      setMeetings(list);
+    } catch (_) {
+      setMeetings([]);
+    } finally {
+      setSyncingMeetings(false);
+      setLoadingMeetings(false);
+    }
+  };
 
   useEffect(() => {
     base44.functions.invoke('agentContacts', {})
@@ -27,14 +43,7 @@ export default function Home() {
       .catch(() => setContacts([]))
       .finally(() => setLoadingContacts(false));
 
-    base44.functions.invoke('agentMeetings', {})
-      .then(res => {
-        const data = res.data;
-        const list = data?.meetings || data?.data?.meetings || [];
-        setMeetings(list);
-      })
-      .catch(() => setMeetings([]))
-      .finally(() => setLoadingMeetings(false));
+    fetchMeetings();
   }, []);
 
   const handleUseForFollowup = (meeting) => {
@@ -75,8 +84,10 @@ export default function Home() {
         <MeetingPanel
           meetings={meetings}
           loading={loadingMeetings}
+          syncing={syncingMeetings}
           onUseForFollowup={handleUseForFollowup}
           onSelectContact={handlePanelContactSelect}
+          onSync={() => fetchMeetings(true)}
         />
       </div>
     </div>
