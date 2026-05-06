@@ -139,7 +139,7 @@ function MeetingCard({ meeting, onUseForFollowup, onSelectContact, isExpanded, o
 }
 
 export default function MeetingPanel({ meetings, loading, onUseForFollowup, onSelectContact }) {
-  const [activeTab, setActiveTab] = useState('past');
+  const [activeTab, setActiveTab] = useState('upcoming');
   const [expandedId, setExpandedId] = useState(null);
 
   const now = new Date();
