@@ -38,7 +38,7 @@ function Pill({ children, color = 'teal' }) {
   );
 }
 
-export default function Agent02() {
+export default function Agent02({ prefillMeeting, onClear }) {
   const [transcript, setTranscript] = useState('');
   const [contact, setContact] = useState('');
   const [state, setState] = useState('idle');
@@ -46,9 +46,21 @@ export default function Agent02() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
+  // Pre-fill from a meeting passed from the calendar panel
+  useState(() => {
+    if (prefillMeeting) {
+      const contactStr = [prefillMeeting.contactName, prefillMeeting.company].filter(Boolean).join(' at ');
+      setContact(contactStr);
+      if (prefillMeeting.notes) {
+        setTranscript(`[Meeting: ${prefillMeeting.title}]\n[Date: ${prefillMeeting.startTime ? new Date(prefillMeeting.startTime).toLocaleString() : 'N/A'}]\n\n${prefillMeeting.notes}`);
+      }
+    }
+  });
+
   const loadSample = () => {
     setTranscript(SAMPLE_TRANSCRIPT);
     setContact('Gal Levi at Eon.io');
+    if (onClear) onClear();
   };
 
   const analyse = async () => {
@@ -88,6 +100,18 @@ export default function Agent02() {
           Load sample
         </button>
       </div>
+
+      {/* Pre-filled meeting banner */}
+      {prefillMeeting && state === 'idle' && (
+        <div className="flex items-center justify-between mb-3 px-3 py-2 rounded-lg" style={{ background: '#EFF5FF', border: '1px solid #BFCFFF' }}>
+          <div>
+            <span style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#2563EB', letterSpacing: '0.06em' }}>FROM CALENDAR · </span>
+            <span style={{ fontSize: '12px', color: '#1A2330', fontWeight: 500 }}>{prefillMeeting.title}</span>
+            {prefillMeeting.startTime && <span style={{ fontSize: '11px', color: '#8A9BAA', marginLeft: '6px' }}>{new Date(prefillMeeting.startTime).toLocaleDateString()}</span>}
+          </div>
+          <button onClick={onClear} style={{ fontSize: '11px', color: '#8A9BAA', fontFamily: 'IBM Plex Mono, monospace' }}>✕</button>
+        </div>
+      )}
 
       {/* Input area */}
       {state !== 'loading' && state !== 'result' && (
