@@ -6,23 +6,43 @@ import Sidebar from '@/components/Sidebar';
 import Agent01 from './Agent01';
 import Agent02 from './Agent02';
 import Agent03 from './Agent03';
+import MeetingPanel from '@/components/MeetingPanel';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState(1);
   const [contacts, setContacts] = useState([]);
   const [loadingContacts, setLoadingContacts] = useState(true);
   const [selectedContact, setSelectedContact] = useState(null);
+  const [meetings, setMeetings] = useState([]);
+  const [loadingMeetings, setLoadingMeetings] = useState(true);
+  const [followupData, setFollowupData] = useState(null);
 
   useEffect(() => {
     base44.functions.invoke('agentContacts', {})
-    .then(res => {
-      const list = res.data?.contacts || [];
-      setContacts(list);
-      if (list.length > 0) setSelectedContact(list[0]);
-    })
-    .catch(() => setContacts([]))
-    .finally(() => setLoadingContacts(false));
+      .then(res => {
+        const list = res.data?.contacts || [];
+        setContacts(list);
+        if (list.length > 0) setSelectedContact(list[0]);
+      })
+      .catch(() => setContacts([]))
+      .finally(() => setLoadingContacts(false));
+
+    base44.functions.invoke('agentMeetings', {})
+      .then(res => setMeetings(res.data?.meetings || []))
+      .catch(() => setMeetings([]))
+      .finally(() => setLoadingMeetings(false));
   }, []);
+
+  const handleUseForFollowup = (meeting) => {
+    setFollowupData({ transcript: meeting.nooksNote || '', contact: meeting.contact.name + (meeting.contact.company ? ` at ${meeting.contact.company}` : '') });
+    setActiveTab(2);
+  };
+
+  const handlePanelContactSelect = (contact) => {
+    const existing = contacts.find(c => c.email === contact.email || c.name === contact.name);
+    setSelectedContact(existing || contact);
+    setActiveTab(1);
+  };
 
   return (
     <div style={{ background: '#F5F7F9', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -43,9 +63,17 @@ export default function Home() {
         {/* Main content */}
         <div style={{ flex: 1, overflowY: 'auto', background: '#F5F7F9' }}>
           {activeTab === 1 && <Agent01 selectedContact={selectedContact} />}
-          {activeTab === 2 && <Agent02 />}
+          {activeTab === 2 && <Agent02 initialData={followupData} />}
           {activeTab === 3 && <Agent03 />}
         </div>
+
+        {/* Right Meeting Panel — always visible */}
+        <MeetingPanel
+          meetings={meetings}
+          loading={loadingMeetings}
+          onUseForFollowup={handleUseForFollowup}
+          onSelectContact={handlePanelContactSelect}
+        />
       </div>
     </div>
   );

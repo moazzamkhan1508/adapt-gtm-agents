@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import LoadingSteps from '@/components/LoadingSteps';
 
@@ -38,13 +38,19 @@ function Pill({ children, color = 'teal' }) {
   );
 }
 
-export default function Agent02() {
-  const [transcript, setTranscript] = useState('');
-  const [contact, setContact] = useState('');
+export default function Agent02({ initialData }) {
+  const [transcript, setTranscript] = useState(initialData?.transcript || '');
+  const [contact, setContact] = useState(initialData?.contact || '');
   const [state, setState] = useState('idle');
   const [currentStep, setCurrentStep] = useState(0);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+
+  // Sync when coming from meeting panel
+  useEffect(() => {
+    if (initialData?.transcript) { setTranscript(initialData.transcript); setState('idle'); }
+    if (initialData?.contact) setContact(initialData.contact);
+  }, [initialData]);
 
   const loadSample = () => {
     setTranscript(SAMPLE_TRANSCRIPT);
