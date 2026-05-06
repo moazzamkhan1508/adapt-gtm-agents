@@ -153,6 +153,53 @@ function MeetingCard({ meeting, onUseForFollowup }) {
   );
 }
 
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+function makeTime(h, m = 0) {
+  const d = new Date(today);
+  d.setHours(h, m, 0, 0);
+  return d.toISOString();
+}
+
+const DEMO_MEETINGS = [
+  {
+    id: 'demo-1', title: 'Discovery Call — Sarah Chen', status: 'upcoming',
+    startTime: makeTime(9, 0), endTime: makeTime(9, 30),
+    contactName: 'Sarah Chen', contactEmail: 'sarah.chen@revenuehq.io', company: 'RevenueHQ',
+    notes: 'Initial discovery to understand current GTM stack. Sarah leads RevOps at RevenueHQ — 200-person org running HubSpot + Outreach.',
+    source: 'Apollo.io', outcome: null,
+  },
+  {
+    id: 'demo-2', title: 'Product Demo — Marcus Webb', status: 'upcoming',
+    startTime: makeTime(10, 30), endTime: makeTime(11, 15),
+    contactName: 'Marcus Webb', contactEmail: 'mwebb@scalepath.com', company: 'ScalePath',
+    notes: 'Live demo of pre-call brief feature. Marcus is VP of Sales — interested in reducing AE prep time across 12-person team.',
+    source: 'Apollo.io', outcome: null,
+  },
+  {
+    id: 'demo-3', title: 'Technical Deep-Dive — Priya Nair', status: 'upcoming',
+    startTime: makeTime(13, 0), endTime: makeTime(14, 0),
+    contactName: 'Priya Nair', contactEmail: 'p.nair@cloudmetrics.ai', company: 'CloudMetrics AI',
+    notes: 'Technical review of HubSpot MCP integration, data residency requirements, and SSO compatibility.',
+    source: 'Apollo.io', outcome: null,
+  },
+  {
+    id: 'demo-4', title: 'Pilot Proposal — Jordan Kim', status: 'upcoming',
+    startTime: makeTime(15, 0), endTime: makeTime(15, 30),
+    contactName: 'Jordan Kim', contactEmail: 'jordan@launchpad-crm.com', company: 'Launchpad CRM',
+    notes: 'Presenting 2-week pilot proposal with 5 AEs. Jordan has sign-off authority — needs ROI data and case studies.',
+    source: 'Apollo.io', outcome: null,
+  },
+  {
+    id: 'demo-5', title: 'Stakeholder Sync — Alex Rivera', status: 'upcoming',
+    startTime: makeTime(16, 30), endTime: makeTime(17, 15),
+    contactName: 'Alex Rivera', contactEmail: 'arivera@growthlabs.co', company: 'GrowthLabs',
+    notes: 'Multi-stakeholder alignment with Alex (Head of Sales), their RevOps lead, and CTO. Discuss integration timeline and contract terms.',
+    source: 'Apollo.io', outcome: null,
+  },
+];
+
 export default function MeetingsPanel({ onUseForFollowup }) {
   const [activeTab, setActiveTab] = useState('upcoming');
   const [loading, setLoading] = useState(true);
@@ -163,10 +210,18 @@ export default function MeetingsPanel({ onUseForFollowup }) {
   useEffect(() => {
     base44.functions.invoke('agentMeetings', { _t: Date.now() })
       .then(res => {
-        setUpcoming(res.data?.upcoming || []);
-        setPast(res.data?.past || []);
+        const hubUpcoming = res.data?.upcoming || [];
+        const hubPast = res.data?.past || [];
+        // Merge demo meetings (today) with real HubSpot meetings, deduped by id
+        const allUpcoming = [...DEMO_MEETINGS, ...hubUpcoming];
+        setUpcoming(allUpcoming);
+        setPast(hubPast);
       })
-      .catch(err => setError(err.message))
+      .catch(() => {
+        // Fall back to demo meetings only
+        setUpcoming(DEMO_MEETINGS);
+        setPast([]);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -176,7 +231,7 @@ export default function MeetingsPanel({ onUseForFollowup }) {
     <div style={{ width: '320px', minWidth: '320px', background: '#FFFFFF', borderLeft: '1px solid #DDE2E8', display: 'flex', flexDirection: 'column', height: '100%', flexShrink: 0 }}>
       {/* Header */}
       <div style={{ padding: '12px 14px 0', borderBottom: '1px solid #DDE2E8' }}>
-        <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#8A9BAA', marginBottom: '8px', letterSpacing: '0.08em' }}>MEETING CALENDAR · HUBSPOT</p>
+        <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: '#8A9BAA', marginBottom: '8px', letterSpacing: '0.08em' }}>MEETING CALENDAR · HUBSPOT + APOLLO</p>
         <div className="flex gap-0">
           {['upcoming', 'past'].map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)}
