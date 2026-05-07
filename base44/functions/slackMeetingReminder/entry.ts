@@ -114,10 +114,43 @@ Deno.serve(async (req) => {
 
       // Get meeting notes / past notes
       let notesSnippet = '';
-      if (mp.hs_internal_meeting_notes || mp.hs_meeting_body) {
-        const raw = (mp.hs_internal_meeting_notes || mp.hs_meeting_body).slice(0, 400);
-        notesSnippet = `*Meeting Notes:*\n>${raw}`;
+      const rawNotes = mp.hs_internal_meeting_notes || mp.hs_meeting_body || '';
+      if (rawNotes) {
+        notesSnippet = rawNotes.slice(0, 400);
       }
+
+      // Generate AI insights
+      let talkingPoints = [], riskFlags = [], suggestedOpener = '';
+      try {
+        const aiContext = {
+          meetingTitle: title,
+          contact: { name: contactName, company: contactCompany, email: contactEmail },
+          deal: dealInfo || 'No open deal',
+          meetingNotes: notesSnippet || 'No prior notes',
+        };
+        const aiResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
+          prompt: `You are a GTM intelligence agent. A sales rep has a meeting in 30 minutes. Based on the context below, generate concise, actionable pre-meeting insights.
+
+Context:
+${JSON.stringify(aiContext, null, 2)}
+
+Return a JSON object with:
+1. "talkingPoints": array of 3 sharp, specific talking points tailored to this contact and deal
+2. "riskFlags": array of up to 3 risks or watch-outs for this meeting
+3. "suggestedOpener": one natural, personalized opening line to start the call`,
+          response_json_schema: {
+            type: 'object',
+            properties: {
+              talkingPoints: { type: 'array', items: { type: 'string' } },
+              riskFlags: { type: 'array', items: { type: 'string' } },
+              suggestedOpener: { type: 'string' },
+            },
+          },
+        });
+        talkingPoints = aiResult.talkingPoints || [];
+        riskFlags = aiResult.riskFlags || [];
+        suggestedOpener = aiResult.suggestedOpener || '';
+      } catch (_) { /* AI insights optional */ }
 
       // Get owner email from HubSpot to look up Slack user
       let ownerEmail = null;
@@ -215,14 +248,46 @@ Deno.serve(async (req) => {
         blocks.push({ type: 'divider' });
         blocks.push({
           type: 'section',
-          text: { type: 'mrkdwn', text: notesSnippet }
+          text: { type: 'mrkdwn', text: `📝 *Meeting Notes*\n>${notesSnippet}` }
+        });
+      }
+
+      // AI Insights
+      if (talkingPoints.length > 0) {
+        blocks.push({ type: 'divider' });
+        blocks.push({
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `🧠 *AI Talking Points*\n${talkingPoints.map(p => `• ${p}`).join('\n')}`,
+          },
+        });
+      }
+
+      if (riskFlags.length > 0) {
+        blocks.push({
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `⚑ *Watch-outs*\n${riskFlags.map(f => `• ${f}`).join('\n')}`,
+          },
+        });
+      }
+
+      if (suggestedOpener) {
+        blocks.push({
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `💬 *Suggested Opener*\n_"${suggestedOpener}"_`,
+          },
         });
       }
 
       blocks.push({ type: 'divider' });
       blocks.push({
         type: 'context',
-        elements: [{ type: 'mrkdwn', text: `_Sent by Adapt GTM · HubSpot CRM · ${new Date().toLocaleTimeString()}_` }]
+        elements: [{ type: 'mrkdwn', text: `_Sent by Adapt GTM · HubSpot CRM + AI · ${new Date().toLocaleTimeString()}_` }]
       });
 
       // Send the message
