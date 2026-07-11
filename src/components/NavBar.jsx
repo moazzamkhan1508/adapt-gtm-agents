@@ -15,7 +15,7 @@ export default function NavBar({ contactCount, dealCount }) {
     <nav style={{ background: '#FFFFFF', borderBottom: '1px solid #DDE2E8', height: '50px' }}
       className="sticky top-0 z-50 flex items-center justify-between px-4 md:px-6 shadow-sm">
       <div className="flex items-center gap-3">
-        <img src="https://media.base44.com/images/public/69fadf323e84ff19a5036c4f/7fb1b946b_67a3701d4d1a70bae8943224_navbar-logo-icon.png" alt="Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
+        <img src="https://media.base44.com/images/public/69fadf323e84ff19a5036c4f/2d9d1d63d_66c1be5cd6f79a015a1c2af1_groundcover.svg" alt="Groundcover" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
         <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '15px', color: '#1A2330', letterSpacing: '-0.02em' }}>
           Groundcover
         </span>
