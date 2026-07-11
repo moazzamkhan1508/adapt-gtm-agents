@@ -17,7 +17,7 @@ export default function NavBar({ contactCount, dealCount }) {
       <div className="flex items-center gap-3">
         <img src="https://media.base44.com/images/public/69fadf323e84ff19a5036c4f/7fb1b946b_67a3701d4d1a70bae8943224_navbar-logo-icon.png" alt="Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
         <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '15px', color: '#1A2330', letterSpacing: '-0.02em' }}>
-          Adapt
+          Groundcover
         </span>
         <div style={{ width: '1px', height: '16px', background: '#DDE2E8' }} />
         <span style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '11px', color: '#8A9BAA' }}>

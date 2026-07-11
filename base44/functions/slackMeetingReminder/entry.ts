@@ -287,7 +287,7 @@ Return a JSON object with:
       blocks.push({ type: 'divider' });
       blocks.push({
         type: 'context',
-        elements: [{ type: 'mrkdwn', text: `_Sent by Adapt GTM · HubSpot CRM + AI · ${new Date().toLocaleTimeString()}_` }]
+        elements: [{ type: 'mrkdwn', text: `_Sent by Groundcover GTM · HubSpot CRM + AI · ${new Date().toLocaleTimeString()}_` }]
       });
 
       // Send the message
